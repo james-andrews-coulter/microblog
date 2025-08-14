@@ -1,25 +1,33 @@
 ---
-import { SITE_TITLE } from "../consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 ---
 
-<nav class="mt-8 mb-4 flex flex-col md:flex-row md:justify-between items-start md:items-center">
-  <a href="/" class="hover:underline text-lg font-medium inline-block">
-    {SITE_TITLE}
-  </a>
-
-  <!-- Author h-card for IndieWeb identity -->
-  <div class="p-author h-card mt-2 md:mt-0 flex items-center space-x-2">
-    <!-- Photo (optional but recommended) -->
-    <img
-      class="u-photo w-8 h-8 rounded-full"
-      src="/images/avatar.jpeg"
-      alt="James Coulter"
-      width="32"
-      height="32"
-    />
-
-    <a class="p-name u-url u-uid text-sm" rel="me" href={Astro.site}>
-        James Coulter
+<nav class="mt-8 mb-4 flex flex-col md:flex-row md:justify-between items-start md:items-top">
+  <div>
+    <a href="/" class="hover:underline text-lg font-medium inline-block">
+      {SITE_TITLE}
     </a>
+
+    <p class="text-xs flex items-center space-x-2">
+      <span>{SITE_DESCRIPTION} by</span>
+
+      <span class="p-author h-card flex items-center space-x-1 ml-2">
+
+          <img
+          class="u-photo w-4 h-4 rounded-full"
+          src="/src/content/images/avatar.jpg"
+          alt="James Coulter"
+          width="16"
+          height="16"
+        />
+        <a
+          class="p-name u-url u-uid"
+          rel="me"
+          href="/"
+        >
+          James Coulter
+        </a>
+      </span>
+    </p>
   </div>
 </nav>
