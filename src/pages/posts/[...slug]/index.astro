@@ -76,13 +76,6 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
           <img class="u-photo" src={post.data.hero} alt="" />
         )}
 
-        {/* Minimal author h-card (can also live in your layout/site header) */}
-        <div class="p-author h-card">
-          <a class="p-name u-url u-uid" rel="me" href={Astro.site}>Your Name</a>
-          {/* If you have an avatar, uncomment: */}
-          {/* <img class="u-photo" src="/images/avatar.jpg" alt="Your Name" /> */}
-        </div>
-
         {/* Post-type-of links (add in frontmatter when you use them) */}
         {post.data.inReplyTo && (
           <a class="u-in-reply-to" href={post.data.inReplyTo}>in reply to</a>

@@ -12,10 +12,9 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
       <span>{SITE_DESCRIPTION} by</span>
 
       <span class="p-author h-card flex items-center space-x-1 ml-2">
-
-          <img
+        <img
           class="u-photo w-4 h-4 rounded-full"
-          src="/public/avatar.jpg"
+          src={`${import.meta.env.BASE_URL}avatar.jpg`}
           alt="James Coulter"
           width="16"
           height="16"
