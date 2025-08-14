@@ -24,21 +24,17 @@ jobs:
       - name: Build with Astro (pnpm)
         uses: withastro/action@v2
         with:
-          path: .                 # root of your project
+          path: .                 # project root
           node-version: 20
           package-manager: pnpm@9 # matches your lockfile
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
+          # This action builds and uploads the Pages artifact for you.
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
