@@ -27,7 +27,7 @@ jobs:
           path: .                 # project root
           node-version: 20
           package-manager: pnpm@9 # matches your lockfile
-          # This action builds and uploads the Pages artifact for you.
+          # No need for upload step — Astro action does it.
 
   deploy:
     needs: build
