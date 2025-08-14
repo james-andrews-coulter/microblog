@@ -1,22 +1,16 @@
 ---
-import { getCollection, getEntry, render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 import Layout from "../layouts/Layout.astro";
+
 import FormattedDate from '@/components/FormattedDate.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '@/consts';
-
-const entry = await getEntry("info", "intro");
-const { Content } = await render(entry!);
 
 const posts = (await getCollection("blog")).sort(
   (b, a) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
 );
 
-const uniqueTags = [
-  ...new Set(
-    posts.flatMap((post) => post.data.tags).filter((tag) => tag !== undefined)
-  ),
-].sort();
+
 ---
 
 <Layout
@@ -32,11 +26,8 @@ const uniqueTags = [
   }}
 >
   <Fragment slot="content">
-    <Prose>
-      <Content />
-    </Prose>
     <div class="flex flex-col space-y-2">
-      <h1 class="text-2xl font-medium">Blog Posts</h1>
+      <h1 class="text-2xl font-medium">Log</h1>
       <ul class="flex flex-col space-y-4 md:space-y-0">
         {
           posts.map((post) => (
@@ -48,7 +39,7 @@ const uniqueTags = [
         }
       </ul>
     </div>
-    <div class="flex flex-col space-y-2">
+    <!-- <div class="flex flex-col space-y-2">
       <h2 class="text-xl font-medium tracking-tight">Tags</h2>
       <ul class="flex flex-col space-x-0 space-y-1 md:flex-row md:space-x-2 md:space-y-0 md:flex-wrap">
         {
@@ -61,6 +52,6 @@ const uniqueTags = [
           ))
         }
       </ul>
-    </div>
+    </div> -->
   </Fragment>
 </Layout>
