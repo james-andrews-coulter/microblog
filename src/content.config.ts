@@ -1,23 +1,33 @@
-import { file, glob } from 'astro/loaders';
-import { defineCollection, z } from 'astro:content';
+import { glob } from "astro/loaders";
+import { defineCollection, z } from "astro:content";
 
 const blog = defineCollection({
-  // Load Markdown and MDX files in the `src/content/blog/` directory.
-  loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
-  // Type-check frontmatter using a schema
+  loader: glob({ base: "./src/content/blog", pattern: "**/*.{md,mdx}" }),
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
-    // Transform string to Date object
+
+    // Dates
     pubDate: z.coerce.date(),
-    // TODO: add modified date
-    // modDate: z.coerce.date().optional(),
-    tags: z.array(z.string()).optional(),
+    updatedDate: z.coerce.date().optional(), // <- add this (or rename to modDate and change template)
+
+    // Media & meta
+    hero: z.string().optional(), // allow relative paths; don't force URL()
+    tags: z.array(z.string()).default([]), // default to [] so .map is safe
+
+    // Post-type-of links (all optional)
+    inReplyTo: z.string().url().optional(),
+    likeOf: z.string().url().optional(),
+    repostOf: z.string().url().optional(),
+    bookmarkOf: z.string().url().optional(),
+
+    // POSSE / syndication permalinks
+    syndication: z.array(z.string().url()).optional(),
   }),
 });
 
 const info = defineCollection({
-  loader: glob({ base: './src/content/info', pattern: '**/*.{md,mdx}' }),
+  loader: glob({ base: "./src/content/info", pattern: "**/*.{md,mdx}" }),
   schema: z.any(),
 });
 
