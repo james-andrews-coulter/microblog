@@ -48,7 +48,7 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
         <h1 class="text-2xl font-medium p-name">{post.data.title}</h1>
         <a class="u-url u-uid" href={url}></a>
         <img class="u-photo" src="https://blog.jamesandrewscoulter.com/avatar.jpg" alt="">
-        <span class="p-name">James Coulter</span>
+        <a href="https://blog.jamesandrewscoulter.com/" rel="author" class="p-author h-card">James Coulter</a>
         <time
           class="dt-published"
           datetime={new Date(post.data.pubDate).toISOString()}
