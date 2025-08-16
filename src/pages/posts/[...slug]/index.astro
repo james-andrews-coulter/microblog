@@ -43,21 +43,12 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
   }}
 >
   <Fragment slot="content">
-    {/* Make the whole post a single h-entry */}
     <article class="h-entry">
       <header class="flex flex-col space-y-2 mb-4">
-        {/* Post title is p-name. Keep your styling. */}
         <h1 class="text-2xl font-medium p-name">{post.data.title}</h1>
-
-        {/* Canonical URL + UID for the entry (empty anchor is fine). */}
         <a class="u-url u-uid" href={url}></a>
-
-        {/* Optional short description as p-summary (visually hidden). */}
-        {post.data.description && (
-          <p class="p-summary hidden">{post.data.description}</p>
-        )}
-
-        {/* Published/updated times */}
+        <img class="u-photo" src="https://blog.jamesandrewscoulter.com/avatar.jpg" alt="">
+        <span class="p-name">James Coulter</span>
         <time
           class="dt-published"
           datetime={new Date(post.data.pubDate).toISOString()}
@@ -65,51 +56,14 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
           <FormattedDate date={post.data.pubDate} />
         </time>
 
-        <a
-          rel="author"
-          class="p-author h-card"
-          href="/"
-        >
-          <span class="p-name sr-only">James Coulter</span>
-        </a>
-
-        {/* Optional hero image as u-photo */}
-        {post.data.hero && (
-          <img class="u-photo" src={post.data.hero} alt="" />
-        )}
-
-        {/* Post-type-of links (add in frontmatter when you use them) */}
-        {post.data.inReplyTo && (
-          <a class="u-in-reply-to" href={post.data.inReplyTo}>in reply to</a>
-        )}
-        {post.data.likeOf && (
-          <a class="u-like-of" href={post.data.likeOf}>liked</a>
-        )}
-        {post.data.repostOf && (
-          <a class="u-repost-of" href={post.data.repostOf}>reposted</a>
-        )}
-        {post.data.bookmarkOf && (
-          <a class="u-bookmark-of" href={post.data.bookmarkOf}>bookmarked</a>
-        )}
-
-        {/* POSSE / syndication permalinks */}
-        {Array.isArray(post.data.syndication) && post.data.syndication.length > 0 && (
-          <ul>
-            {post.data.syndication.map((s: string) => (
-              <li><a class="u-syndication" href={s}>{s}</a></li>
-            ))}
-          </ul>
-        )}
       </header>
 
-      {/* Your post body becomes e-content */}
       <div class="e-content">
         <Prose>
           <Content />
         </Prose>
       </div>
 
-      {/* Tags become p-category */}
       {post.data.tags && post.data.tags.length > 0 && (
         <footer class="mt-6">
           <ul class="flex flex-col space-x-0 space-y-1 md:flex-row md:space-x-2 md:space-y-0 md:flex-wrap">
