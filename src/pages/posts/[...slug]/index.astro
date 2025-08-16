@@ -64,12 +64,16 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
         >
           <FormattedDate date={post.data.pubDate} />
         </time>
-        {post.data.updatedDate && (
-          <time
-            class="dt-updated"
-            datetime={new Date(post.data.updatedDate).toISOString()}
-          />
-        )}
+
+        <a
+                  rel="author"
+                  href="/"
+                  class="sr-only"
+                  aria-hidden="true"
+                  tabindex="-1"
+                >
+                  Author
+                </a>
 
         {/* Optional hero image as u-photo */}
         {post.data.hero && (
