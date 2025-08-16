@@ -50,9 +50,7 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
         <a href="https://blog.jamesandrewscoulter.com/" rel="author" class="p-author h-card sr-only">James Coulter
         <img class="u-photo sr-only" src="https://blog.jamesandrewscoulter.com/avatar.jpg" alt="">
         </a>
-
-          <FormattedDate date={post.data.pubDate} />
-        </time>
+        <FormattedDate date={post.data.pubDate} />
       </header>
 
       <div class="e-content">
