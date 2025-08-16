@@ -45,17 +45,17 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
   <Fragment slot="content">
     <article class="h-entry">
       <header class="flex flex-col space-y-2 mb-4">
-          <div class="u-author h-card">
-              <img src="https://blog.jamesandrewscoulter.com/avatar.jpg" class="u-photo sr-only"  alt="">
-              <a href="https://blog.jamesandrewscoulter.com/" class="u-url sr-only" >James Coulter
-          </div>
+          <span class="p-author h-card">
+              <a href="https://blog.jamesandrewscoulter.com/" rel="author" title="James Coulter" class="u-url sr-only" >
+                  <img src="https://blog.jamesandrewscoulter.com/avatar.jpg" class="u-photo p-name sr-only"  alt="James Coulter">
+              </a>
+          </span>
         <a class="u-url" href={url}></a>
         <FormattedDate date={post.data.pubDate} />
-        </a>
+        <h1 class="p-name text-2xl font-medium">{post.data.title}</h1>
       </header>
 
       <div class="e-content">
-          <h1 class="p-name text-2xl font-medium">{post.data.title}</h1>
         <Prose>
           <Content />
         </Prose>
