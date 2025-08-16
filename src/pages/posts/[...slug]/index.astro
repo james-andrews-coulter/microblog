@@ -57,6 +57,7 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
         >
           <FormattedDate date={post.data.pubDate} />
         </time>
+        <link rel="webmention" href="https://webmention.io/blog.jamesandrewscoulter.com/webmention" />
 
       </header>
 
