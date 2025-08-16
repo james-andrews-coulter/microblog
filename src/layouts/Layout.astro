@@ -44,6 +44,8 @@ const { locale = "en" } = Astro.props as Props;
       }}
     />
     <slot name="head" />
+    <link rel="webmention" href="https://webmention.io/blog.jamesandrewscoulter.com/webmention" />
+
   </head>
   <body
     class="bg-white text-slate-900 leading-normal tracking-normal w-4/5 md:max-w-3xl mx-auto"
