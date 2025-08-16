@@ -66,14 +66,12 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
         </time>
 
         <a
-                  rel="author"
-                  href="/"
-                  class="sr-only"
-                  aria-hidden="true"
-                  tabindex="-1"
-                >
-                  Author
-                </a>
+          rel="author"
+          class="p-author h-card"
+          href="/"
+        >
+          <span class="p-name sr-only">James Coulter</span>
+        </a>
 
         {/* Optional hero image as u-photo */}
         {post.data.hero && (
