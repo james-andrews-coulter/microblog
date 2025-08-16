@@ -48,13 +48,19 @@ const { locale = "en" } = Astro.props as Props;
     class="bg-white text-slate-900 leading-normal tracking-normal w-4/5 md:max-w-3xl mx-auto"
   >
     <main class="container flex flex-col space-y-4 min-h-screen">
-        <a class="h-card u-url u-uid sr-only" rel="me" href="https://blog.jamesandrewscoulter.com/">
+        <div class="h-card sr-only">
+          <a class="u-url u-uid" rel="me" href="https://blog.jamesandrewscoulter.com/">
+            https://blog.jamesandrewscoulter.com/
+          </a>
+
+          <a class="u-url" rel="me" href="https://github.com/james-andrews-coulter">
+            GitHub
+          </a>
+
           <img class="u-photo" src="https://blog.jamesandrewscoulter.com/avatar.jpg" alt="">
           <span class="p-name">James Coulter</span>
           <span class="p-note">Australian Product Designer living in Europe</span>
-        </a>
-          <a href="https://github.com/james-andrews-coulter" rel="me" aria-label="GitHub" class="inline-flex sr-only">Github</a>
-        </a>
+        </div>
       <Header />
       <slot name="content" />
       <Footer />
