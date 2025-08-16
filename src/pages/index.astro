@@ -25,14 +25,15 @@ const posts = (await getCollection("blog")).sort(
     },
   }}
 >
+
   <Fragment slot="content">
     <div class="flex flex-col space-y-2">
-      <ul class="flex flex-col space-y-4 md:space-y-0">
+      <ul class="h-feed flex flex-col space-y-4 md:space-y-0">
         {
           posts.map((post) => (
-            <li class="flex flex-col space-x-0 md:flex-row md:space-x-2 md:items-baseline">
+            <li class="h-entry flex flex-col space-x-0 md:flex-row md:space-x-2 md:items-baseline">
               <FormattedDate date={post.data.pubDate} />
-              <a href={`/posts/${post.id}/`} class="text-blue-500 md:text-lg hover:underline">{post.data.title}</a>
+              <a href={`/posts/${post.id}/`} class="text-blue-500 md:text-lg hover:underline u-url p-name">{post.data.title}</a>
             </li>
           ))
         }

@@ -51,10 +51,6 @@ const url = Astro.url?.pathname ?? `/posts/${post.id}/`;
         <img class="u-photo sr-only" src="https://blog.jamesandrewscoulter.com/avatar.jpg" alt="">
         </a>
 
-        <time
-          class="dt-published"
-          datetime={new Date(post.data.pubDate).toISOString()}
-        >
           <FormattedDate date={post.data.pubDate} />
         </time>
       </header>
