@@ -1,0 +1,13 @@
+---
+layout: layouts/base.njk
+---
+
+<article>
+    <h2>{{ title }} </h2>
+    <time datetime="{{ post.date | htmlDateString }}">{{ date | readableDate }}</time>
+    {% if featuredImage %}
+        <img src="{{ featuredImage }}" alt="{{ title }}" width="600">
+    {% endif %}
+
+    <p> {{ content | safe }}</p>
+</article>
