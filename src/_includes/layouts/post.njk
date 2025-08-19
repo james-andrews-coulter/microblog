@@ -11,6 +11,6 @@ layout: layouts/base.njk
         <div class="e-content"> {{ content | safe }}</div>
         <time class="dt-published" datetime="{{ date | htmlDateString }}">{{ date | htmlDateString }}</time>
 
-        <a class="u-url" href="/posts/{{ slug }}/"></a>
-        <a class="u-author h-card" href="/"></a>
+        <link class="u-url" href="/posts/{{ slug }}/"></>
+        <link class="u-author h-card" href="/"></>
 </article>
