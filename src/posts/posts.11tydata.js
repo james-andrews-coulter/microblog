@@ -1,30 +1,32 @@
-// src/posts/posts.11tydata.js
-export default (data = {}) => {
-  const isArticle = Boolean(data.title || data.name);
+// src/posts/posts.11tydata.js (ESM)
+export default {
+  // ensure everything here is part of your "posts" collection
+  tags: ["posts"],
 
-  // Normalize Micropub `content` → `body`
-  const raw = data.content;
-  const body =
-    typeof raw === "string"
-      ? raw
-      : raw && typeof raw === "object" && raw.html
-        ? raw.html
-        : raw && typeof raw === "object" && raw.text
-          ? raw.text
-          : "";
+  eleventyComputed: {
+    // If it has a title/name, treat as article; otherwise a note
+    type: (data) => (data.title || data.name ? "article" : "note"),
 
-  // Some posts (esp. new ones written by Micropub) might not have `page.fileSlug`
-  const slug =
-    data.page && data.page.fileSlug
-      ? data.page.fileSlug
-      : data.fileSlug || null;
+    // Pick layout per type
+    layout: (data) =>
+      data.title || data.name ? "layouts/article.njk" : "layouts/note.njk",
 
-  return {
-    tags: ["posts"],
-    type: isArticle ? "article" : "note",
-    layout: isArticle ? "layouts/article.njk" : "layouts/note.njk",
-    permalink: slug ? `/posts/${slug}/` : false, // `false` = let Eleventy decide if slug missing
-    body,
-    title: data.title || data.name || undefined,
-  };
+    // Build at /posts/<slug>/
+    permalink: (data) => {
+      const slug =
+        data.page?.fileSlug ?? data.page?.filePathStem?.split("/").pop() ?? "";
+      return `/posts/${slug}/`;
+    },
+
+    // Normalize Micropub content into a `body` value (optional)
+    body: (data) => {
+      const raw = data.content;
+      if (typeof raw === "string") return raw;
+      if (raw && typeof raw === "object") return raw.html ?? raw.text ?? "";
+      return "";
+    },
+
+    // Optional: expose title for articles
+    title: (data) => data.title || data.name || undefined,
+  },
 };
