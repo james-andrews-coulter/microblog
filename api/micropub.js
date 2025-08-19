@@ -1,38 +1,39 @@
 import MicropubEndpoint from "@benjifs/micropub";
 import GitHubStore from "@benjifs/github-store";
 
-// Required env vars (we’ll add them in Vercel):
 const {
-  ME,
-  TOKEN_ENDPOINT,
-  GITHUB_TOKEN,
-  GITHUB_USER,
-  GITHUB_REPO,
-  MICROPUB_BASE, // e.g., https://yourdomain.com (we’ll set this too)
+  // Required:
+  ME, // e.g. https://example.com/  (MUST end with /)
+  TOKEN_ENDPOINT, // e.g. https://tokens.indieauth.com/token
+  GITHUB_TOKEN, // GitHub PAT with repo write access
+  GITHUB_USER, // your GitHub username
+  GITHUB_REPO, // repo name only, e.g. microblog
+  MICROPUB_BASE, // e.g. https://example.com
+
+  // Optional (but helpful to be explicit):
+  GITHUB_BRANCH = "main",
 } = process.env;
 
-// Map post types to your 11ty folders.
-// We'll put "note" posts in /src/notes and "article" posts in /src/articles
-const formatSlug = (type, slug) => {
-  const dir =
-    type === "note" ? "notes" : type === "article" ? "articles" : type;
-  return `${dir}/${slug}`;
-};
-
-// Build the endpoint
-export const micropub = new MicropubEndpoint({
+const endpoint = new MicropubEndpoint({
   store: new GitHubStore({
     token: GITHUB_TOKEN,
     user: GITHUB_USER,
     repo: GITHUB_REPO,
+    branch: GITHUB_BRANCH,
   }),
-  me: ME, // must have trailing slash!
-  tokenEndpoint: TOKEN_ENDPOINT,
-  contentDir: "src", // change if your 11ty input dir isn’t "src"
-  mediaDir: "uploads", // where uploaded files go in your repo
-  translateProps: true, // maps microformats to 11ty front matter (name->title, category->tags, etc.)
 
-  // Client-facing config (returned by GET ?q=config):
+  // IndieAuth
+  me: ME,
+  tokenEndpoint: TOKEN_ENDPOINT,
+
+  // Where to write files in your repo
+  contentDir: "src/posts", // <-- your posts live here
+  mediaDir: "src/images", // <-- your images live here
+
+  // Map MF2 props -> front matter (title/tags/etc.)
+  translateProps: true,
+
+  // Tell clients what you support
   config: {
     "media-endpoint": `${MICROPUB_BASE}/api/media`,
     "post-types": [
@@ -41,10 +42,12 @@ export const micropub = new MicropubEndpoint({
     ],
   },
 
-  formatSlug,
+  // Put everything in src/posts with a simple slug
+  // (the library will pass us a slug; we keep it as-is)
+  formatSlug: (_type, slug) => `${slug}`,
 });
 
+export const micropub = endpoint;
 export default async function handler(request) {
-  // Just forward the Request to the Micropub handler
-  return micropub.micropubHandler(request);
+  return endpoint.micropubHandler(request);
 }
