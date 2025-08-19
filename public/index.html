@@ -7,23 +7,22 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
         <link rel="me" href="https://github.com/james-andrews-coulter" />
     </head>
-    <body>
+    <body class="h-card" >
         <header>
-    <h1>Microblog</h1>
-    <nav>
-        <a href="/">Home</a>
-    </nav>
+    <img class="photo u-photo" src="images/photo.png" alt="James Coulter">
+    <a class="u-url u-uid" rel="author" href="/"></a>
+    <h1 class="p-name">James Coulter</h1>
+    <p class="p-role"> Designer.Technologist.</p>
 </header>
 
         <main>
-            <p></p>Hi, welcome to my blog</p>
-
+            <div class="h-feed section">
 <h2>Feed</h2>
 
 <ul>
     
-    <li>
-        <h3>
+    <li class="h-entry">
+        <h3 class = "p-name">
             <a href="/posts/post-2/">My second post</a>
         </h3>
             <time datetime="25-08-18">18-08-25</time>
@@ -33,8 +32,8 @@
     </li>
 
     
-    <li>
-        <h3>
+    <li class="h-entry">
+        <h3 class = "p-name">
             <a href="/posts/post-1/">My first post</a>
         </h3>
             <time datetime="25-08-19">19-08-25</time>
@@ -46,8 +45,12 @@
     
 </ul>
 
+</div>
 
         </main>
+        <aside>
+        <h2> Aside</h2>
+        </aside>
         <footer>
     <p>&copy;James Coulter 2025. All rights reserved.</p>
 </footer>

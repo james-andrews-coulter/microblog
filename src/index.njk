@@ -3,8 +3,8 @@ layout: layouts/base.njk
 title: Home
 permalink: /
 ---
-<p></p>Hi, welcome to my blog</p>
-
+<div class="h-feed section">
 <h2>Feed</h2>
 {% set postslist = collections.posts %}
 {% include "postslist.njk" %}
+</div>
