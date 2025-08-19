@@ -2,12 +2,15 @@
 layout: layouts/base.njk
 ---
 
-<article>
-    <h2>{{ title }} </h2>
-    <time datetime="{{ post.date | htmlDateString }}">{{ date | readableDate }}</time>
+<article class="h-entry">
+    <h2 class = "p-name e-content">{{ title }} </h2>
     {% if featuredImage %}
         <img src="{{ featuredImage }}" alt="{{ title }}" width="600">
     {% endif %}
 
-    <p> {{ content | safe }}</p>
+        <p> {{ content | safe }}</p>
+
+        <a class="u-url" href="/posts/{{ slug }}/">
+                <time datetime="{{ date | htmlDateString }}">{{ date | readableDate }}<time>
+        </a>
 </article>
