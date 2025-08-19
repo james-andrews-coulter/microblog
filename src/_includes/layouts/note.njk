@@ -1,0 +1,14 @@
+---
+layout: layouts/base.njk
+---
+
+<article class="h-entry">
+  <div class="e-content p-name">
+    {{ content | safe }}
+  </div>
+  <a class="u-url" href="{{ page.url }}">
+    <time class="dt-published" datetime="{{ date | htmlDateString }}">
+      {{ date | readableDate }}
+    </time>
+  </a>
+</article>

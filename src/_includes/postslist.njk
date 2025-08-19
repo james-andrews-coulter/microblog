@@ -1,14 +1,30 @@
 <ul>
-    {% for post in postslist%}
+  {% for post in postslist %}
     <li>
-    <article class="h-entry">
-        <h3 class = "p-name e-content">
-            <a class= "u-url" href="/posts/{{ post.data.slug }}/">{{post.data.title}}</a>
-        </h3>
-            <time class="dt-published" datetime="{{ post.date | htmlDateString }}">{{ post.date | readableDate }}</time>
-        <p> {{ post.data.description }}</p>
-        </article>
-    </li>
+      <article class="h-entry">
+        {% if post.data.type == "article" %}
+          <h3 class="p-name">
+           <a class="u-url" href="{{ post.url }}">{{ post.data.title }}</a>
+          </h3>
+          <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+            {{ post.date | readableDate }}
+          </time>
+          {% if post.data.description %}
+            <p class="p-summary">{{ post.data.description }}</p>
+          {% endif %}
 
-    {% endfor %}
+        {% elif post.data.type == "note" %}
+          <div class="e-content p-name">
+            {{ post.templateContent | safe }}
+          </div>
+          <a class="u-url" href="{{ post.url }}">
+            <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+              {{ post.date | readableDate }}
+            </time>
+          </a>
+        {% endif %}
+
+      </article>
+    </li>
+  {% endfor %}
 </ul>
