@@ -1,0 +1,22 @@
+{
+  "name": "@benjifs/github-store",
+  "version": "0.2.0",
+  "description": "Interact with a GitHub repository using the GitHub contents API",
+  "main": "index.js",
+  "keywords": [
+    "indieweb",
+    "micropub",
+    "github"
+  ],
+  "author": "Benji Encalada Mora (https://benji.dog)",
+  "homepage": "https://github.com/benjifs/github-store#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benjifs/github-store.git"
+  },
+  "bugs": {
+    "url": "https://github.com/benjifs/github-store/issues"
+  },
+  "license": "MIT",
+  "type": "module"
+}

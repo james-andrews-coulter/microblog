@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2"
+  },
+  "dependencies": {
+    "@benjifs/github-store": "^0.2.0",
+    "@benjifs/micropub": "^2.0.1"
   }
 }

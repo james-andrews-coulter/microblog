@@ -1,0 +1,40 @@
+{
+  "name": "@benjifs/micropub",
+  "description": "serverless micropub endpoint",
+  "version": "2.0.1",
+  "main": "src/index.js",
+  "scripts": {
+    "lint": "eslint src"
+  },
+  "keywords": [
+    "indieweb",
+    "micropub",
+    "netlify",
+    "serverless"
+  ],
+  "author": "Benji Encalada Mora (https://benji.dog)",
+  "homepage": "https://github.com/benjifs/micropub",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benjifs/micropub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/benjifs/micropub/issues"
+  },
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@paulrobertlloyd/mf2tojf2": "^2.4.0",
+    "busboy": "^1.6.0",
+    "gray-matter": "^4.0.3"
+  },
+  "engines": {
+    "node": ">=20.x",
+    "npm": ">=8.x"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0"
+  }
+}
