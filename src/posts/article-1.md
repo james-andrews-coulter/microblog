@@ -1,7 +1,7 @@
 ---
 title: My first article
 date: 2025-08-19
-layout: layouts/article.njk
+layout: article.njk
 type: article
 featuredImage: /images/post-1.jpg
 permalink: /articles/{{ page.fileSlug }}/

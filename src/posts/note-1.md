@@ -1,6 +1,6 @@
 ---
 date: 2025-08-19
-layout: layouts/note.njk
+layout: note.njk
 type: note
 permalink: /notes/{{ page.fileSlug }}/
 ---
