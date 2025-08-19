@@ -5,8 +5,6 @@
             <a href="/posts/{{ post.data.slug }}/">{{post.data.title}}</a>
         </h3>
             <time datetime="{{ post.date | htmlDateString }}">{{ post.date | readableDate }}</time>
-
-
         <p> {{ post.data.description }}</p>
     </li>
 

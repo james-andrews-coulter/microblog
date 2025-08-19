@@ -12,9 +12,7 @@
         <main>
             {{ content | safe }}
         </main>
-        <aside>
-        <h2> Aside</h2>
-        </aside>
+       {% include "layouts/aside.njk" %}
         {% include "layouts/footer.njk" %}
     </body>
 </html>
