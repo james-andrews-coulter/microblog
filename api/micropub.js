@@ -1,9 +1,8 @@
 // api/micropub.js
 // ESM file (package.json has "type":"module")
-
 import { Readable } from "node:stream";
 
-// --- tiny utils -------------------------------------------------------------
+// ---------- tiny utils ----------
 const log = (...a) => {
   try {
     console.log("[micropub]", ...a);
@@ -66,7 +65,7 @@ async function toWebRequest(reqLike) {
   return new RequestCtor(url, init);
 }
 
-// Stream a Fetch Response to Node's res without "disturbing" the body
+// Stream a Fetch Response to Node's res without “disturbing” the body
 async function sendResponse(
   res /* Node res or null */,
   webResp /* Fetch Response */,
@@ -79,7 +78,6 @@ async function sendResponse(
     res.end();
     return;
   }
-  // Web ReadableStream -> Node Readable
   const nodeStream = Readable.fromWeb(webResp.body);
   nodeStream.on("error", () => {
     try {
@@ -103,8 +101,10 @@ function missingEnv() {
   );
 }
 
-// --- lazy Micropub endpoint -------------------------------------------------
+// ---------- lazy Micropub endpoint ----------
 let _endpoint = null;
+let _lastCreatedSlug = null;
+
 async function getEndpoint() {
   if (_endpoint) return _endpoint;
 
@@ -147,14 +147,17 @@ async function getEndpoint() {
       ],
     },
 
-    // Filenames like: src/posts/<slug>.md
-    formatSlug: (_type, slug) => `${slug}`,
+    // Filenames like: src/posts/<slug>.md  (also capture slug for redirect fix)
+    formatSlug: (_type, slug) => {
+      _lastCreatedSlug = slug;
+      return `${slug}`;
+    },
   });
 
   return _endpoint;
 }
 
-// --- handler (supports both (req,res) and (Request)) ------------------------
+// ---------- handler (supports both (req,res) and (Request)) ----------
 export default async function handler(requestOrReq, resMaybe) {
   const url = getUrlFromRequestLike(requestOrReq);
   log(`${requestOrReq.method || "GET"} ${url.pathname}${url.search || ""}`);
@@ -201,6 +204,28 @@ export default async function handler(requestOrReq, resMaybe) {
     const ep = await getEndpoint();
     const webReq = await toWebRequest(requestOrReq); // uses duplex: 'half' when body exists
     const webResp = await ep.micropubHandler(webReq);
+
+    // --- Patch Location to your real page URL: /posts/<slug>/ ---
+    try {
+      if (webResp.status === 201 && _lastCreatedSlug) {
+        const base =
+          process.env.MICROPUB_BASE || `${url.protocol}//${url.host}`;
+        const headers = new Headers(webResp.headers);
+        headers.set(
+          "Location",
+          new URL(`/posts/${_lastCreatedSlug}/`, base).toString(),
+        );
+        const patched = new Response(webResp.body, {
+          status: webResp.status,
+          headers,
+        });
+        return sendResponse(resMaybe, patched);
+      }
+    } catch {
+      /* ignore and fall through */
+    }
+    // -------------------------------------------------------------
+
     return sendResponse(resMaybe, webResp);
   } catch (err) {
     log("Handler error:", err?.stack || err?.message || String(err));
@@ -217,7 +242,7 @@ export default async function handler(requestOrReq, resMaybe) {
   }
 }
 
-// Optional: let /api/media reuse the same instance
+// For /api/media to reuse this instance
 export async function getMicropub() {
   return getEndpoint();
 }
