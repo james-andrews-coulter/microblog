@@ -1,6 +1,8 @@
 // api/micropub.js
 // ESM file (package.json has "type":"module")
 
+import { Readable } from "node:stream";
+
 // --- tiny utils -------------------------------------------------------------
 const log = (...a) => {
   try {
@@ -32,6 +34,61 @@ function getUrlFromRequestLike(reqOrRequest) {
   return new URL(`${proto}://${host}${path}`);
 }
 
+// Node req -> Web Request (with duplex for streaming bodies)
+async function toWebRequest(reqLike) {
+  // Already a Web Request?
+  if (
+    typeof reqLike?.headers?.get === "function" &&
+    typeof reqLike?.text === "function"
+  )
+    return reqLike;
+
+  const url = getUrlFromRequestLike(reqLike).toString();
+  const method = reqLike.method || "GET";
+
+  const HeadersCtor =
+    globalThis.Headers || (await import("node-fetch")).Headers;
+  const headers = new HeadersCtor();
+  for (const [k, v] of Object.entries(reqLike.headers || {})) {
+    if (Array.isArray(v)) headers.set(k, v.join(", "));
+    else if (typeof v === "string") headers.set(k, v);
+    else if (v != null) headers.set(k, String(v));
+  }
+
+  const isBodyless = method === "GET" || method === "HEAD";
+  const body = isBodyless ? undefined : reqLike; // IncomingMessage stream
+
+  const RequestCtor =
+    globalThis.Request || (await import("node-fetch")).Request;
+  const init = isBodyless
+    ? { method, headers }
+    : { method, headers, body, duplex: "half" };
+  return new RequestCtor(url, init);
+}
+
+// Stream a Fetch Response to Node's res without "disturbing" the body
+async function sendResponse(
+  res /* Node res or null */,
+  webResp /* Fetch Response */,
+) {
+  if (!res) return webResp; // in Fetch handler env, just return it
+
+  res.statusCode = webResp.status;
+  webResp.headers.forEach((v, k) => res.setHeader(k, v));
+  if (!webResp.body) {
+    res.end();
+    return;
+  }
+  // Web ReadableStream -> Node Readable
+  const nodeStream = Readable.fromWeb(webResp.body);
+  nodeStream.on("error", () => {
+    try {
+      res.end();
+    } catch {}
+  });
+  nodeStream.pipe(res);
+}
+
 function missingEnv() {
   const REQUIRED = [
     "ME",
@@ -44,49 +101,6 @@ function missingEnv() {
   return REQUIRED.filter(
     (k) => !process.env[k] || process.env[k].trim() === "",
   );
-}
-
-async function toWebRequest(reqLike) {
-  // Already a Web Request?
-  if (
-    typeof reqLike?.headers?.get === "function" &&
-    typeof reqLike?.text === "function"
-  )
-    return reqLike;
-
-  // Node IncomingMessage -> Web Request
-  const url = getUrlFromRequestLike(reqLike).toString();
-  const method = reqLike.method || "GET";
-
-  // Build Headers from Node headers object
-  const HeadersCtor =
-    globalThis.Headers || (await import("node-fetch")).Headers;
-  const headers = new HeadersCtor();
-  const nodeHeaders = reqLike.headers || {};
-  for (const [k, v] of Object.entries(nodeHeaders)) {
-    if (Array.isArray(v)) headers.set(k, v.join(", "));
-    else if (typeof v === "string") headers.set(k, v);
-    else if (v != null) headers.set(k, String(v));
-  }
-
-  const isBodyless = method === "GET" || method === "HEAD";
-  const body = isBodyless ? undefined : reqLike; // Node IncomingMessage is a readable stream
-  const RequestCtor =
-    globalThis.Request || (await import("node-fetch")).Request;
-  return new RequestCtor(url, { method, headers, body });
-}
-
-async function sendResponse(
-  res /* Node res or null */,
-  webResp /* Fetch Response */,
-) {
-  if (!res) return webResp; // in Fetch handler, just return it
-
-  // Bridge to Node res
-  res.statusCode = webResp.status;
-  webResp.headers.forEach((v, k) => res.setHeader(k, v));
-  const buf = Buffer.from(await webResp.arrayBuffer());
-  res.end(buf);
 }
 
 // --- lazy Micropub endpoint -------------------------------------------------
@@ -140,7 +154,7 @@ async function getEndpoint() {
   return _endpoint;
 }
 
-// --- handler (works for both (req,res) and (Request)) -----------------------
+// --- handler (supports both (req,res) and (Request)) ------------------------
 export default async function handler(requestOrReq, resMaybe) {
   const url = getUrlFromRequestLike(requestOrReq);
   log(`${requestOrReq.method || "GET"} ${url.pathname}${url.search || ""}`);
@@ -168,7 +182,7 @@ export default async function handler(requestOrReq, resMaybe) {
     return sendResponse(resMaybe, webResp);
   }
 
-  // For everything else, require env and delegate
+  // Everything else requires env
   const miss = missingEnv();
   if (miss.length) {
     const ResponseCtor =
@@ -185,7 +199,7 @@ export default async function handler(requestOrReq, resMaybe) {
 
   try {
     const ep = await getEndpoint();
-    const webReq = await toWebRequest(requestOrReq);
+    const webReq = await toWebRequest(requestOrReq); // uses duplex: 'half' when body exists
     const webResp = await ep.micropubHandler(webReq);
     return sendResponse(resMaybe, webResp);
   } catch (err) {
