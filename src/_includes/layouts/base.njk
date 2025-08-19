@@ -7,12 +7,11 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
         <link rel="me" href="https://github.com/james-andrews-coulter" />
     </head>
-    <body class="h-card" >
+    <body >
         {% include "layouts/header.njk" %}
         <main>
             {{ content | safe }}
         </main>
-       {% include "layouts/aside.njk" %}
         {% include "layouts/footer.njk" %}
     </body>
 </html>
