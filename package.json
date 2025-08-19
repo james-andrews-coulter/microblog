@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "@benjifs/github-store": "^0.2.0",
-    "@benjifs/micropub": "^2.0.1"
+    "@benjifs/micropub": "^2.0.1",
+    "luxon": "^3.7.1"
   }
 }
