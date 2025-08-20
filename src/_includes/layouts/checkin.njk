@@ -1,28 +1,49 @@
+---
+layout: base.njk
+---
+
 <article class="h-entry h-entry--checkin">
-  {% set c = post.data.checkin %}
-  {% if c %}
-    <p>📍 Checked in at
-      {% if c.url %}
-        <a href="{{ c.url }}">{{ c.name or "Somewhere" }}</a>
+  <h2 class="p-name">Check-in</h2>
+
+  {% if checkin %}
+    <div class="p-location h-card">
+      📍
+      {% if checkin.url %}
+        <a class="p-name u-url" href="{{ checkin.url }}">
+          {{ checkin.name or "Somewhere" }}
+        </a>
       {% else %}
-        {{ c.name or "Somewhere" }}
+        <span class="p-name">{{ checkin.name or "Somewhere" }}</span>
       {% endif %}
-    </p>
-    {% if c["street-address"] or c.locality or c.region or c["postal-code"] or c["country-name"] %}
-      <p class="p-location">
-        {{ [c["street-address"], c.locality, c.region, c["postal-code"], c["country-name"]]
-            | select | join(", ") }}
-      </p>
-    {% endif %}
+
+      {% if checkin["street-address"] or checkin.locality or checkin.region or checkin["postal-code"] or checkin["country-name"] %}
+        <div class="p-adr">
+          {{ [
+            checkin["street-address"],
+            checkin.locality,
+            checkin.region,
+            checkin["postal-code"],
+            checkin["country-name"]
+          ] | select | join(", ") }}
+        </div>
+      {% endif %}
+
+      {% if checkin.latitude and checkin.longitude %}
+        <data class="p-latitude" value="{{ checkin.latitude }}"></data>
+        <data class="p-longitude" value="{{ checkin.longitude }}"></data>
+      {% endif %}
+    </div>
   {% endif %}
 
-  {% if post.templateContent %}
-    <div class="e-content">{{ post.templateContent | safe }}</div>
+  {% if content %}
+    <div class="e-content">
+      {{ content | safe }}
+    </div>
   {% endif %}
 
-  <a class="u-url" href="{{ post.url }}">
-    <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
-      {{ post.date | readableDate }}
+  <a class="u-url" href="{{ page.url }}">
+    <time class="dt-published" datetime="{{ date | htmlDateString }}">
+      {{ date | readableDate }}
     </time>
   </a>
 </article>

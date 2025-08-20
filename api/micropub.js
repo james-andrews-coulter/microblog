@@ -79,7 +79,7 @@ const hasKey = (fm, key) => new RegExp(`(^|\\n)\\s*${key}:`, "i").test(fm);
 
 function inferTypeFromFM(fm) {
   if (hasKey(fm, "bookmark-of")) return "bookmark";
-  if (has("checkin")) return "checkin";
+  if (hasKey(fm, "checkin")) return "checkin";
   if (hasKey(fm, "like-of")) return "like";
   if (hasKey(fm, "repost-of")) return "repost";
   if (hasKey(fm, "in-reply-to")) return "reply";
