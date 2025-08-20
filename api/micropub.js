@@ -177,6 +177,9 @@ async function patchFrontMatterInGitHub({ slug }) {
   // Force layout to match finalType (clear, deterministic)
   fm = replaceLine(fm, "layout", layoutFor(finalType));
 
+  // Normalize any absolute/relative URLs pointing at /src/images/ to /images/
+  fm = fm.replace(/(https?:\/\/[^\/]+)?\/src\/images\//g, "/images/");
+
   const updated = `---\n${fm}\n---\n${body}`;
   const putUrl = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(file.path)}`;
   const payload = {
