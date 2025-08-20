@@ -1,51 +1,10 @@
 // src/posts/posts.11tydata.js (ESM)
+// Minimal + pragmatic: keep templates clean and robust.
 export default {
-  // Everything in src/posts is a post
   collectionType: "post",
 
   eleventyComputed: {
-    // Respect explicit type; otherwise infer from common Micropub props
-    type: (d) => {
-      if (d.type) return d.type;
-      if (d["bookmark-of"]) return "bookmark";
-      if (d["like-of"]) return "like";
-      if (d["repost-of"]) return "repost";
-      if (d["in-reply-to"]) return "reply";
-      if (d.photo) return "photo";
-      return d.title || d.name ? "article" : "note";
-    },
-
-    // Pick layout per type, unless already set
-    layout: (d) => {
-      if (d.layout) return d.layout;
-      const t = d.type || (d.title || d.name ? "article" : "note");
-      switch (t) {
-        case "article":
-          return "layouts/article.njk";
-        case "photo":
-          return "layouts/photo.njk";
-        case "bookmark":
-          return "layouts/bookmark.njk";
-        case "like":
-          return "layouts/like.njk";
-        case "repost":
-          return "layouts/repost.njk";
-        case "reply":
-          return "layouts/reply.njk";
-        default:
-          return "layouts/note.njk";
-      }
-    },
-
-    // /posts/<slug>/
-    permalink: (d) => {
-      if (d.permalink) return d.permalink;
-      const slug =
-        d.page?.fileSlug ?? d.page?.filePathStem?.split("/").pop() ?? "";
-      return `/posts/${slug}/`;
-    },
-
-    // Micropub niceties: normalize hyphenated/array properties
+    // Friendly aliases for hyphenated Micropub props (clients often send arrays)
     bookmarkOf: (d) =>
       Array.isArray(d["bookmark-of"]) ? d["bookmark-of"][0] : d["bookmark-of"],
     inReplyTo: (d) =>
@@ -57,15 +16,7 @@ export default {
     photos: (d) =>
       Array.isArray(d.photo) ? d.photo : d.photo ? [d.photo] : [],
 
-    // Normalize content to a single body string
-    body: (d) => {
-      const raw = d.content;
-      if (typeof raw === "string") return raw;
-      if (raw && typeof raw === "object") return raw.html ?? raw.text ?? "";
-      return "";
-    },
-
-    // Nice-to-have: expose a title if present
+    // Optional nicety for layouts that show a heading if present
     title: (d) => d.title || d.name || undefined,
   },
 };
