@@ -105,10 +105,6 @@ function missingEnv() {
 // ---------- type/layout helpers for triage ----------
 function deriveTypeFromFrontMatter(fmText) {
   const has = (key) => new RegExp(`(^|\\n)${key}:`, "i").test(fmText);
-  if (has("type")) {
-    const m = fmText.match(/(^|\n)type:\s*("?)([a-zA-Z0-9_-]+)\2/i);
-    if (m?.[3]) return m[3].toLowerCase();
-  }
   if (has("bookmark-of")) return "bookmark";
   if (has("like-of")) return "like";
   if (has("repost-of")) return "repost";
@@ -136,7 +132,7 @@ function layoutFor(type) {
   }
 }
 
-// ---------- post-write patch to add collectionType/type/layout ----------
+// ---------- post-write patch to add/normalize collectionType/type/layout ----------
 async function patchFrontMatterInGitHub({ slug }) {
   const {
     GITHUB_TOKEN,
@@ -160,7 +156,11 @@ async function patchFrontMatterInGitHub({ slug }) {
   ];
 
   async function getContent(path) {
-    const url = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+    const url = `${base}/repos/${encodeURIComponent(
+      GITHUB_USER,
+    )}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(
+      path,
+    )}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
     const resp = await fetch(url, { headers: authHeaders });
     if (resp.ok) return { ok: true, json: await resp.json(), path };
     return { ok: false };
@@ -208,22 +208,48 @@ async function patchFrontMatterInGitHub({ slug }) {
   let fmText = m[1];
   const body = m[2];
 
-  const ensure = (key, value) => {
-    const has = new RegExp(`(^|\\n)${key}:`).test(fmText);
-    if (!has) fmText += `\n${key}: ${value}`;
-  };
+  // Ensure collectionType
+  if (!/(\n|^)collectionType:/.test(fmText)) {
+    fmText += `\ncollectionType: post`;
+  }
 
-  // Always ensure collectionType
-  ensure("collectionType", "post");
+  // Read existing type (if any)
+  const typeMatch = fmText.match(/(^|\n)type:\s*("?)([a-zA-Z0-9_-]+)\2/i);
+  let existingType = typeMatch?.[3]?.toLowerCase();
 
-  // Ensure type
-  let type = deriveTypeFromFrontMatter(fmText);
-  ensure("type", type);
+  // "entry"/"h-entry"/"post" are ambiguous; normalize them
+  const ambiguous =
+    !existingType || ["entry", "h-entry", "post"].includes(existingType);
 
-  // Ensure layout only if missing
-  const hasLayout = /(^|\n)layout:/.test(fmText);
-  if (!hasLayout) {
-    fmText += `\nlayout: ${layoutFor(type)}`;
+  // Infer the real type from available FM keys
+  const derivedType = deriveTypeFromFrontMatter(fmText);
+
+  // Write/overwrite type if missing or ambiguous
+  if (ambiguous) {
+    if (typeMatch) {
+      fmText = fmText.replace(
+        /(^|\n)type:\s*("?.*?"?|[^\n]+)/i,
+        `$1type: ${derivedType}`,
+      );
+    } else {
+      fmText += `\ntype: ${derivedType}`;
+    }
+    existingType = derivedType;
+  }
+
+  // Align layout with final type (set if missing or mismatched)
+  const desiredLayout = layoutFor(existingType);
+  const layoutMatch = fmText.match(/(^|\n)layout:\s*([^\n]+)/i);
+  if (!layoutMatch) {
+    fmText += `\nlayout: ${desiredLayout}`;
+  } else {
+    const currentLayout = layoutMatch[2].trim();
+    if (currentLayout !== desiredLayout) {
+      fmText = fmText.replace(
+        /(^|\n)layout:\s*([^\n]+)/i,
+        `$1layout: ${desiredLayout}`,
+      );
+    }
   }
 
   const updated = `---\n${fmText.replace(/\n{2,}$/, "\n")}\n---\n${body}`;
@@ -231,12 +257,17 @@ async function patchFrontMatterInGitHub({ slug }) {
     path,
     updated,
     sha,
-    "chore(micropub): normalize front matter",
+    "chore(micropub): normalize type/layout/collectionType",
   );
   log("Patched front matter for:", path);
 
+  // GitHub write helper
   async function putContent(path2, content, sha2, message) {
-    const url = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(path2)}`;
+    const url = `${base}/repos/${encodeURIComponent(
+      GITHUB_USER,
+    )}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(
+      path2,
+    )}`;
     const payload = {
       message,
       branch: GITHUB_BRANCH,
