@@ -2,6 +2,7 @@
 // Minimal + pragmatic: keep templates clean and robust.
 export default {
   collectionType: "post",
+  permalink: "posts/{{ page.fileSlug }}/index.html",
 
   eleventyComputed: {
     // Friendly aliases for hyphenated Micropub props (clients often send arrays)
