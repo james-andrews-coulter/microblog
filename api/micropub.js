@@ -226,9 +226,9 @@ async function getEndpoint() {
       // IMPORTANT: make URLs and storage align
       contentDir: "src", // was "src/posts"
     }),
-    me: ME, // must end with /
+    me: ME,
     tokenEndpoint: TOKEN_ENDPOINT,
-    contentDir: "src/posts", // for media/path hints inside the endpoint (kept, but store above rules)
+    contentDir: "src", // for media/path hints inside the endpoint (kept, but store above rules)
     mediaDir: "src/images",
     translateProps: true,
     config: {
