@@ -82,7 +82,6 @@ export default async function handler(requestOrReq, resMaybe) {
         ),
       );
     }
-
     const webReq = await toWebRequest(requestOrReq);
     const resp = await ep.mediaHandler(webReq);
     return sendResponse(resMaybe, resp);
