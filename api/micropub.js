@@ -9,6 +9,7 @@ const log = (...a) => {
   } catch {}
 };
 const AMBIGUOUS_TYPES = new Set(["entry", "h-entry", "post"]);
+const PUBLIC_POSTS_PREFIX = "/posts/"; // public URL prefix
 
 function getUrlFromRequestLike(req) {
   if (typeof req?.url === "string" && typeof req?.headers?.get === "function") {
@@ -79,7 +80,7 @@ const hasKey = (fm, key) => new RegExp(`(^|\\n)\\s*${key}:`, "i").test(fm);
 
 function inferTypeFromFM(fm) {
   if (hasKey(fm, "bookmark-of")) return "bookmark";
-  if (hasKey(fm, "checkin")) return "checkin";
+  if (hasKey(fm, "checkin")) return "checkin"; // fixed
   if (hasKey(fm, "like-of")) return "like";
   if (hasKey(fm, "repost-of")) return "repost";
   if (hasKey(fm, "in-reply-to")) return "reply";
@@ -89,6 +90,7 @@ function inferTypeFromFM(fm) {
 }
 
 function layoutFor(type) {
+  // You set dir.layouts = "_includes/layouts", so use bare filenames.
   switch (type) {
     case "article":
       return "article.njk";
@@ -166,24 +168,23 @@ async function patchFrontMatterInGitHub({ slug }) {
   let fm = m[1];
   const body = m[2];
 
-  // Read existing type and normalize ambiguity
+  // Normalize type (replace ambiguous or missing)
   const typeMatch = fm.match(/^\s*type:\s*("?)([a-zA-Z0-9_-]+)\1\s*$/im);
   let existingType = typeMatch?.[2]?.toLowerCase();
   if (!existingType || AMBIGUOUS_TYPES.has(existingType)) existingType = null;
-
   const finalType = existingType || inferTypeFromFM(fm);
   fm = replaceLine(fm, "type", finalType);
 
-  // Force layout to match finalType (clear, deterministic)
+  // Force layout to match final type
   fm = replaceLine(fm, "layout", layoutFor(finalType));
 
-  // Normalize any absolute/relative URLs pointing at /src/images/ to /images/
+  // Optional: normalize passthrough image URLs
   fm = fm.replace(/(https?:\/\/[^\/]+)?\/src\/images\//g, "/images/");
 
   const updated = `---\n${fm}\n---\n${body}`;
   const putUrl = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(file.path)}`;
   const payload = {
-    message: "chore(micropub): normalize type/layout/collectionType",
+    message: "chore(micropub): normalize type/layout",
     branch: GITHUB_BRANCH,
     sha: file.sha,
     content: Buffer.from(updated, "utf8").toString("base64"),
@@ -195,7 +196,7 @@ async function patchFrontMatterInGitHub({ slug }) {
   });
   if (!put.ok)
     throw new Error(`GitHub update failed: ${put.status} ${await put.text()}`);
-  log("pathed:", file.path, "→ type:", finalType);
+  log("patched:", file.path, "→ type:", finalType);
 }
 
 // ---------- Micropub endpoint ----------
@@ -222,10 +223,12 @@ async function getEndpoint() {
       user: GITHUB_USER,
       repo: GITHUB_REPO,
       branch: GITHUB_BRANCH,
+      // IMPORTANT: make URLs and storage align
+      contentDir: "src", // was "src/posts"
     }),
     me: ME, // must end with /
     tokenEndpoint: TOKEN_ENDPOINT,
-    contentDir: "src/posts",
+    contentDir: "src/posts", // for media/path hints inside the endpoint (kept, but store above rules)
     mediaDir: "src/images",
     translateProps: true,
     config: {
@@ -235,11 +238,13 @@ async function getEndpoint() {
         { type: "article", name: "Article" },
       ],
     },
+    // Files should land at src/posts/<slug>.md while public URL is /posts/<slug>/
     formatSlug: (_type, slug) => {
-      _lastCreatedSlug = slug;
-      return `${slug}`;
+      _lastCreatedSlug = slug; // e.g., "1755695972"
+      return `posts/${slug}`; // store path under contentDir ("src") → "src/posts/<slug>.md"
     },
   });
+
   return _endpoint;
 }
 
@@ -291,7 +296,7 @@ export default async function handler(reqOrRequest, resMaybe) {
     const webReq = await toWebRequest(reqOrRequest);
     const webResp = await ep.micropubHandler(webReq);
 
-    // After create, normalize FM and set Location to the on-site URL
+    // After create, normalize FM and set public Location (/posts/<slug>/)
     if (webResp.status === 201 && _lastCreatedSlug) {
       try {
         await patchFrontMatterInGitHub({ slug: _lastCreatedSlug });
@@ -302,7 +307,7 @@ export default async function handler(reqOrRequest, resMaybe) {
       const headers = new Headers(webResp.headers);
       headers.set(
         "Location",
-        new URL(`/posts/${_lastCreatedSlug}/`, base).toString(),
+        new URL(`${PUBLIC_POSTS_PREFIX}${_lastCreatedSlug}/`, base).toString(),
       );
       const ResponseCtor = globalThis.Response;
       return sendResponse(
