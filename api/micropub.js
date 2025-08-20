@@ -1,91 +1,63 @@
-// MY ENDPOINT
 // api/micropub.js
-// ESM file (package.json has "type":"module")
+// ESM (package.json has "type":"module")
 import { Readable } from "node:stream";
 
-// ---------- tiny utils ----------
+// ---------- small utils ----------
 const log = (...a) => {
   try {
     console.log("[micropub]", ...a);
   } catch {}
 };
+const AMBIGUOUS_TYPES = new Set(["entry", "h-entry", "post"]);
 
-function getUrlFromRequestLike(reqOrRequest) {
-  // Web Request
-  if (
-    typeof reqOrRequest?.url === "string" &&
-    typeof reqOrRequest?.headers?.get === "function"
-  ) {
+function getUrlFromRequestLike(req) {
+  if (typeof req?.url === "string" && typeof req?.headers?.get === "function") {
     try {
-      return new URL(reqOrRequest.url);
-    } catch {
-      /* fall through */
-    }
+      return new URL(req.url);
+    } catch {}
   }
-  // Node IncomingMessage (vercel dev / Node runtime)
-  const rawUrl = reqOrRequest?.url || "/";
+  const rawUrl = req?.url || "/";
   const host =
-    (reqOrRequest?.headers &&
-      (reqOrRequest.headers.get?.("host") || reqOrRequest.headers.host)) ||
-    "localhost:3000";
-  const isLocal = host.includes("localhost") || host.startsWith("127.");
-  const proto = isLocal ? "http" : "https";
+    req?.headers?.get?.("host") || req?.headers?.host || "localhost:3000";
+  const proto =
+    host.includes("localhost") || host.startsWith("127.") ? "http" : "https";
   const path = rawUrl.startsWith("/") ? rawUrl : `/${rawUrl}`;
   return new URL(`${proto}://${host}${path}`);
 }
 
-// Node req -> Web Request (with duplex for streaming bodies)
-async function toWebRequest(reqLike) {
-  // Already a Web Request?
+async function toWebRequest(req) {
   if (
-    typeof reqLike?.headers?.get === "function" &&
-    typeof reqLike?.text === "function"
+    typeof req?.headers?.get === "function" &&
+    typeof req?.text === "function"
   )
-    return reqLike;
-
-  const url = getUrlFromRequestLike(reqLike).toString();
-  const method = reqLike.method || "GET";
-
-  const HeadersCtor =
-    globalThis.Headers || (await import("node-fetch")).Headers;
+    return req;
+  const url = getUrlFromRequestLike(req).toString();
+  const method = req.method || "GET";
+  const HeadersCtor = globalThis.Headers;
   const headers = new HeadersCtor();
-  for (const [k, v] of Object.entries(reqLike.headers || {})) {
-    if (Array.isArray(v)) headers.set(k, v.join(", "));
-    else if (typeof v === "string") headers.set(k, v);
-    else if (v != null) headers.set(k, String(v));
+  for (const [k, v] of Object.entries(req.headers || {})) {
+    headers.set(k, Array.isArray(v) ? v.join(", ") : String(v));
   }
-
-  const isBodyless = method === "GET" || method === "HEAD";
-  const body = isBodyless ? undefined : reqLike; // IncomingMessage stream
-
-  const RequestCtor =
-    globalThis.Request || (await import("node-fetch")).Request;
-  const init = isBodyless
-    ? { method, headers }
-    : { method, headers, body, duplex: "half" };
-  return new RequestCtor(url, init);
+  const body = method === "GET" || method === "HEAD" ? undefined : req; // IncomingMessage stream
+  const RequestCtor = globalThis.Request;
+  return new RequestCtor(
+    url,
+    body ? { method, headers, body, duplex: "half" } : { method, headers },
+  );
 }
 
-// Stream a Fetch Response to Node's res without “disturbing” the body
-async function sendResponse(
-  res /* Node res or null */,
-  webResp /* Fetch Response */,
-) {
-  if (!res) return webResp; // in Fetch handler env, just return it
-
-  res.statusCode = webResp.status;
-  webResp.headers.forEach((v, k) => res.setHeader(k, v));
-  if (!webResp.body) {
-    res.end();
-    return;
-  }
-  const nodeStream = Readable.fromWeb(webResp.body);
-  nodeStream.on("error", () => {
+async function sendResponse(nodeRes, webResp) {
+  if (!nodeRes) return webResp;
+  nodeRes.statusCode = webResp.status;
+  webResp.headers.forEach((v, k) => nodeRes.setHeader(k, v));
+  if (!webResp.body) return nodeRes.end();
+  const stream = Readable.fromWeb(webResp.body);
+  stream.on("error", () => {
     try {
-      res.end();
+      nodeRes.end();
     } catch {}
   });
-  nodeStream.pipe(res);
+  stream.pipe(nodeRes);
 }
 
 function missingEnv() {
@@ -102,17 +74,19 @@ function missingEnv() {
   );
 }
 
-// ---------- type/layout helpers for triage ----------
-function deriveTypeFromFrontMatter(fmText) {
-  const has = (key) => new RegExp(`(^|\\n)${key}:`, "i").test(fmText);
-  if (has("bookmark-of")) return "bookmark";
-  if (has("like-of")) return "like";
-  if (has("repost-of")) return "repost";
-  if (has("in-reply-to")) return "reply";
-  if (has("photo")) return "photo";
-  if (has("name") || has("title")) return "article";
+// ---------- type/layout helpers ----------
+const hasKey = (fm, key) => new RegExp(`(^|\\n)\\s*${key}:`, "i").test(fm);
+
+function inferTypeFromFM(fm) {
+  if (hasKey(fm, "bookmark-of")) return "bookmark";
+  if (hasKey(fm, "like-of")) return "like";
+  if (hasKey(fm, "repost-of")) return "repost";
+  if (hasKey(fm, "in-reply-to")) return "reply";
+  if (hasKey(fm, "photo")) return "photo";
+  if (hasKey(fm, "name") || hasKey(fm, "title")) return "article";
   return "note";
 }
+
 function layoutFor(type) {
   switch (type) {
     case "article":
@@ -132,7 +106,12 @@ function layoutFor(type) {
   }
 }
 
-// ---------- post-write patch to add/normalize collectionType/type/layout ----------
+const replaceLine = (fm, key, val) =>
+  hasKey(fm, key)
+    ? fm.replace(new RegExp(`^\\s*${key}:.*$`, "im"), `${key}: ${val}`)
+    : `${fm}\n${key}: ${val}`;
+
+// ---------- post-write patch (normalize front matter) ----------
 async function patchFrontMatterInGitHub({ slug }) {
   const {
     GITHUB_TOKEN,
@@ -140,162 +119,90 @@ async function patchFrontMatterInGitHub({ slug }) {
     GITHUB_REPO,
     GITHUB_BRANCH = "main",
   } = process.env;
-
   const base = "https://api.github.com";
-  const authHeaders = {
+  const auth = {
     Authorization: `Bearer ${GITHUB_TOKEN}`,
     Accept: "application/vnd.github+json",
   };
 
-  // Try common content paths/extensions created by the Micropub lib
-  const candidatePaths = [
+  const paths = [
     `src/posts/${slug}.md`,
     `src/posts/${slug}.mdx`,
     `src/posts/${slug}.markdown`,
     `src/posts/${slug}/index.md`,
   ];
 
-  async function getContent(path) {
-    const url = `${base}/repos/${encodeURIComponent(
-      GITHUB_USER,
-    )}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(
-      path,
-    )}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
-    const resp = await fetch(url, { headers: authHeaders });
-    if (resp.ok) return { ok: true, json: await resp.json(), path };
-    return { ok: false };
-  }
+  const getContent = async (p) => {
+    const url = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(p)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+    const r = await fetch(url, { headers: auth });
+    if (!r.ok) return null;
+    const j = await r.json();
+    return {
+      path: p,
+      sha: j.sha,
+      text: Buffer.from(j.content || "", "base64").toString("utf8"),
+    };
+  };
 
-  let found = null;
-  for (const p of candidatePaths) {
-    const r = await getContent(p);
-    if (r.ok) {
-      found = r;
-      break;
-    }
+  let file = null;
+  for (const p of paths) {
+    file = await getContent(p);
+    if (file) break;
   }
-  if (!found) {
-    log("Could not find created file to patch for slug:", slug);
+  if (!file) {
+    log("patch: file not found for slug", slug);
     return;
   }
 
-  const { json, path } = found;
-  const sha = json.sha;
-  const contentBuf = Buffer.from(json.content || "", "base64");
-  const contentStr = contentBuf.toString("utf8");
-
-  // Parse front matter block
-  const m = contentStr.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  const m = file.text.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
   if (!m) {
-    // No front matter; add a minimal one
-    const type = "note";
-    const fm = [
-      "---",
-      `collectionType: post`,
-      `type: ${type}`,
-      `layout: ${layoutFor(type)}`,
-      "---",
-      "",
-    ].join("\n");
-    return putContent(
-      path,
-      fm + contentStr,
-      sha,
-      "chore(micropub): add front matter defaults",
-    );
+    log("patch: no front matter block");
+    return;
   }
 
-  let fmText = m[1];
+  let fm = m[1];
   const body = m[2];
 
   // Ensure collectionType
-  if (!/(\n|^)collectionType:/.test(fmText)) {
-    fmText += `\ncollectionType: post`;
-  }
+  if (!hasKey(fm, "collectionType")) fm += `\ncollectionType: post`;
 
-  // Read existing type (if any)
-  const typeMatch = fmText.match(/(^|\n)type:\s*("?)([a-zA-Z0-9_-]+)\2/i);
-  let existingType = typeMatch?.[3]?.toLowerCase();
+  // Read existing type and normalize ambiguity
+  const typeMatch = fm.match(/^\s*type:\s*("?)([a-zA-Z0-9_-]+)\1\s*$/im);
+  let existingType = typeMatch?.[2]?.toLowerCase();
+  if (!existingType || AMBIGUOUS_TYPES.has(existingType)) existingType = null;
 
-  // "entry"/"h-entry"/"post" are ambiguous; normalize them
-  const ambiguous =
-    !existingType || ["entry", "h-entry", "post"].includes(existingType);
+  const finalType = existingType || inferTypeFromFM(fm);
+  fm = replaceLine(fm, "type", finalType);
 
-  // Infer the real type from available FM keys
-  const derivedType = deriveTypeFromFrontMatter(fmText);
+  // Force layout to match finalType (clear, deterministic)
+  fm = replaceLine(fm, "layout", layoutFor(finalType));
 
-  // Write/overwrite type if missing or ambiguous
-  if (ambiguous) {
-    if (typeMatch) {
-      fmText = fmText.replace(
-        /(^|\n)type:\s*("?.*?"?|[^\n]+)/i,
-        `$1type: ${derivedType}`,
-      );
-    } else {
-      fmText += `\ntype: ${derivedType}`;
-    }
-    existingType = derivedType;
-  }
-
-  // Align layout with final type (set if missing or mismatched)
-  const desiredLayout = layoutFor(existingType);
-  const layoutMatch = fmText.match(/(^|\n)layout:\s*([^\n]+)/i);
-  if (!layoutMatch) {
-    fmText += `\nlayout: ${desiredLayout}`;
-  } else {
-    const currentLayout = layoutMatch[2].trim();
-    if (currentLayout !== desiredLayout) {
-      fmText = fmText.replace(
-        /(^|\n)layout:\s*([^\n]+)/i,
-        `$1layout: ${desiredLayout}`,
-      );
-    }
-  }
-
-  const updated = `---\n${fmText.replace(/\n{2,}$/, "\n")}\n---\n${body}`;
-  await putContent(
-    path,
-    updated,
-    sha,
-    "chore(micropub): normalize type/layout/collectionType",
-  );
-  log("Patched front matter for:", path);
-
-  // GitHub write helper
-  async function putContent(path2, content, sha2, message) {
-    const url = `${base}/repos/${encodeURIComponent(
-      GITHUB_USER,
-    )}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(
-      path2,
-    )}`;
-    const payload = {
-      message,
-      branch: GITHUB_BRANCH,
-      sha: sha2,
-      content: Buffer.from(content, "utf8").toString("base64"),
-    };
-    const resp = await fetch(url, {
-      method: "PUT",
-      headers: { ...authHeaders, "content-type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!resp.ok) {
-      const text = await resp.text();
-      throw new Error(`GitHub content update failed: ${resp.status} ${text}`);
-    }
-  }
+  const updated = `---\n${fm}\n---\n${body}`;
+  const putUrl = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(file.path)}`;
+  const payload = {
+    message: "chore(micropub): normalize type/layout/collectionType",
+    branch: GITHUB_BRANCH,
+    sha: file.sha,
+    content: Buffer.from(updated, "utf8").toString("base64"),
+  };
+  const put = await fetch(putUrl, {
+    method: "PUT",
+    headers: { ...auth, "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!put.ok)
+    throw new Error(`GitHub update failed: ${put.status} ${await put.text()}`);
+  log("pathed:", file.path, "→ type:", finalType);
 }
 
-// ---------- lazy Micropub endpoint ----------
+// ---------- Micropub endpoint ----------
 let _endpoint = null;
 let _lastCreatedSlug = null;
 
 async function getEndpoint() {
   if (_endpoint) return _endpoint;
-
   const { default: MicropubEndpoint } = await import("@benjifs/micropub");
   const { default: GitHubStore } = await import("@benjifs/github-store");
-
   const {
     ME,
     TOKEN_ENDPOINT,
@@ -313,44 +220,34 @@ async function getEndpoint() {
       repo: GITHUB_REPO,
       branch: GITHUB_BRANCH,
     }),
-
-    // IndieAuth
     me: ME, // must end with /
     tokenEndpoint: TOKEN_ENDPOINT,
-
-    // Your repo layout
     contentDir: "src/posts",
     mediaDir: "src/images",
     translateProps: true,
-
-    // Advertised to clients
     config: {
       "media-endpoint": `${MICROPUB_BASE}/api/media`,
-      // Keep this minimal; clients may still send other h-entry shapes
       "post-types": [
         { type: "note", name: "Note" },
         { type: "article", name: "Article" },
       ],
     },
-
-    // Filenames like: src/posts/<slug>.md  (also capture slug for redirect fix)
     formatSlug: (_type, slug) => {
       _lastCreatedSlug = slug;
       return `${slug}`;
     },
   });
-
   return _endpoint;
 }
 
-// ---------- handler (supports both (req,res) and (Request)) ----------
-export default async function handler(requestOrReq, resMaybe) {
-  const url = getUrlFromRequestLike(requestOrReq);
-  log(`${requestOrReq.method || "GET"} ${url.pathname}${url.search || ""}`);
+// ---------- handler ----------
+export default async function handler(reqOrRequest, resMaybe) {
+  const url = getUrlFromRequestLike(reqOrRequest);
+  log(`${reqOrRequest.method || "GET"} ${url.pathname}${url.search || ""}`);
 
-  // q=config should *always* return, even without env or GitHub
+  // q=config always answers
   if (
-    (requestOrReq.method || "GET") === "GET" &&
+    (reqOrRequest.method || "GET") === "GET" &&
     url.searchParams.get("q") === "config"
   ) {
     const base = process.env.MICROPUB_BASE || `${url.protocol}//${url.host}`;
@@ -361,81 +258,71 @@ export default async function handler(requestOrReq, resMaybe) {
         { type: "article", name: "Article" },
       ],
     };
-
-    const ResponseCtor =
-      globalThis.Response || (await import("node-fetch")).Response;
-    const webResp = new ResponseCtor(JSON.stringify(body), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
-    return sendResponse(resMaybe, webResp);
+    const ResponseCtor = globalThis.Response;
+    return sendResponse(
+      resMaybe,
+      new ResponseCtor(JSON.stringify(body), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
   }
 
-  // Everything else requires env
   const miss = missingEnv();
   if (miss.length) {
-    const ResponseCtor =
-      globalThis.Response || (await import("node-fetch")).Response;
-    const webResp = new ResponseCtor(
-      JSON.stringify({ error: "Missing environment variables", missing: miss }),
-      {
-        status: 500,
-        headers: { "content-type": "application/json" },
-      },
+    const ResponseCtor = globalThis.Response;
+    return sendResponse(
+      resMaybe,
+      new ResponseCtor(
+        JSON.stringify({
+          error: "Missing environment variables",
+          missing: miss,
+        }),
+        { status: 500, headers: { "content-type": "application/json" } },
+      ),
     );
-    return sendResponse(resMaybe, webResp);
   }
 
   try {
     const ep = await getEndpoint();
-    const webReq = await toWebRequest(requestOrReq); // uses duplex: 'half' when body exists
+    const webReq = await toWebRequest(reqOrRequest);
     const webResp = await ep.micropubHandler(webReq);
 
-    // --- Patch Location to your real page URL: /posts/<slug>/ ---
-    let patched = webResp;
-    try {
-      if (webResp.status === 201 && _lastCreatedSlug) {
-        // Normalize front matter in GitHub now that the file exists
-        try {
-          await patchFrontMatterInGitHub({ slug: _lastCreatedSlug });
-        } catch (patchErr) {
-          log("Post-write patch failed:", patchErr?.message || patchErr);
-        }
-
-        const base =
-          process.env.MICROPUB_BASE || `${url.protocol}//${url.host}`;
-        const headers = new Headers(webResp.headers);
-        headers.set(
-          "Location",
-          new URL(`/posts/${_lastCreatedSlug}/`, base).toString(),
-        );
-        patched = new Response(webResp.body, {
-          status: webResp.status,
-          headers,
-        });
+    // After create, normalize FM and set Location to the on-site URL
+    if (webResp.status === 201 && _lastCreatedSlug) {
+      try {
+        await patchFrontMatterInGitHub({ slug: _lastCreatedSlug });
+      } catch (e) {
+        log("patch error:", e.message);
       }
-    } catch {
-      /* ignore and fall through */
+      const base = process.env.MICROPUB_BASE || `${url.protocol}//${url.host}`;
+      const headers = new Headers(webResp.headers);
+      headers.set(
+        "Location",
+        new URL(`/posts/${_lastCreatedSlug}/`, base).toString(),
+      );
+      const ResponseCtor = globalThis.Response;
+      return sendResponse(
+        resMaybe,
+        new ResponseCtor(webResp.body, { status: 201, headers }),
+      );
     }
-    // -------------------------------------------------------------
 
-    return sendResponse(resMaybe, patched);
+    return sendResponse(resMaybe, webResp);
   } catch (err) {
-    log("Handler error:", err?.stack || err?.message || String(err));
-    const ResponseCtor =
-      globalThis.Response || (await import("node-fetch")).Response;
-    const webResp = new ResponseCtor(
-      JSON.stringify({ error: err?.message || String(err) }),
-      {
+    log("handler error:", err?.message || String(err));
+    const ResponseCtor = globalThis.Response;
+    return sendResponse(
+      resMaybe,
+      new ResponseCtor(JSON.stringify({ error: err?.message || String(err) }), {
         status: 500,
         headers: { "content-type": "application/json" },
-      },
+      }),
     );
-    return sendResponse(resMaybe, webResp);
   }
 }
 
-// For /api/media to reuse this instance
+// For /api/media reuse
 export async function getMicropub() {
   return getEndpoint();
 }
