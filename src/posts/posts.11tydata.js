@@ -1,6 +1,6 @@
 // src/posts/posts.11tydata.js (ESM)
 export default {
-  // Everything in src/posts participates in your mixed feed
+  // Everything in src/posts is a post
   collectionType: "post",
 
   eleventyComputed: {

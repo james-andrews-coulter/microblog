@@ -1,7 +1,7 @@
 ---
 type: bookmark
-layout: layouts/bookmark.njk
-date: 2025-08-20T10:30:00Z
+layout: bookmark.njk
+date: '2025-08-20T09:33:28.615Z'
 tags:
   - tag2
 bookmark-of: https://indieweb.org/

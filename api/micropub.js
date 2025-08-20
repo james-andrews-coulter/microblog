@@ -90,19 +90,19 @@ function inferTypeFromFM(fm) {
 function layoutFor(type) {
   switch (type) {
     case "article":
-      return "layouts/article.njk";
+      return "article.njk";
     case "photo":
-      return "layouts/photo.njk";
+      return "photo.njk";
     case "bookmark":
-      return "layouts/bookmark.njk";
+      return "bookmark.njk";
     case "like":
-      return "layouts/like.njk";
+      return "like.njk";
     case "repost":
-      return "layouts/repost.njk";
+      return "repost.njk";
     case "reply":
-      return "layouts/reply.njk";
+      return "reply.njk";
     default:
-      return "layouts/note.njk";
+      return "note.njk";
   }
 }
 

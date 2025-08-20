@@ -1,7 +1,7 @@
 ---
 type: photo
-layout: layouts/photo.njk
-date: 2025-08-20T10:00:00Z
+layout: photo.njk
+date: '2025-08-20T09:30:28.615Z'
 tags:
   - tag1
 photo:

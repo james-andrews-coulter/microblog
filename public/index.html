@@ -25,25 +25,21 @@
 </header>
 
         <main>
-            <div class="h-feed section">
+            <div class="section">
 <h2>Feed</h2>
 
 
-<ul class="feed">
+<ul class="h-feed">
   
     
-    <li class="feed__item">
+    <li>
       
-        <article class="h-entry h-entry--repost">
-  
-  <p>🔁 Reposted <a class="u-repost-of" href="https://example.com/someone-else/post">https://example.com/someone-else/post</a></p>
+        <article class="h-entry h-entry--note">
+  <div class="e-content p-name">
+    <p>Micropub test of creating a basic h-entry!!</p>
 
-  
-    <div class="e-content"><p>I wanted to reshare this post I found interesting.</p>
-</div>
-  
-
-  <a class="u-url" href="/posts/repost/" rel="bookmark">
+  </div>
+  <a class="u-url" href="/posts/1755682049/" rel="bookmark">
     <time class="dt-published" datetime="2025-08-20">
       20-08-2025
     </time>
@@ -54,7 +50,51 @@
     </li>
   
     
-    <li class="feed__item">
+    <li>
+      
+        <article class="h-entry h-entry--note">
+  <div class="e-content p-name">
+    <p>This is a <strong>short note</strong> without a title.</p>
+<p>Perfect for testing <code>note</code> rendering.</p>
+
+  </div>
+  <a class="u-url" href="/posts/note/" rel="bookmark">
+    <time class="dt-published" datetime="2025-08-20">
+      20-08-2025
+    </time>
+  </a>
+</article>
+
+      
+    </li>
+  
+    
+    <li>
+      
+        <article class="h-entry h-entry--article">
+  <h3 class="p-name">
+    <a class="u-url" href="/posts/article/" rel="bookmark">Why I Love IndieWeb</a>
+  </h3>
+  <time class="dt-published" datetime="2025-08-20">
+    20-08-2025
+  </time>
+  
+  
+    <ul class="tags">
+      
+        <li class="p-category">tag1</li>
+      
+        <li class="p-category">tag2</li>
+      
+    </ul>
+  
+</article>
+
+      
+    </li>
+  
+    
+    <li>
       
         <article class="h-entry h-entry--like">
   
@@ -76,53 +116,7 @@
     </li>
   
     
-    <li class="feed__item">
-      
-        <article class="h-entry h-entry--reply">
-  
-  <p>↩️ In reply to <a class="u-in-reply-to" href="https://example.com/someone-else/post">https://example.com/someone-else/post</a></p>
-
-  <div class="e-content p-name">
-    <p>This is a <strong>reply post</strong>, pointing back to another URL.</p>
-
-  </div>
-
-  <a class="u-url" href="/posts/reply/" rel="bookmark">
-    <time class="dt-published" datetime="2025-08-20">
-      20-08-2025
-    </time>
-  </a>
-</article>
-
-      
-    </li>
-  
-    
-    <li class="feed__item">
-      
-        <article class="h-entry h-entry--bookmark">
-  
-  <p>🔖 Bookmarked <a class="u-bookmark-of" href="https://indieweb.org/">https://indieweb.org/</a></p>
-
-  
-
-  
-    <div class="e-content"><p>Saved a bookmark to the <strong>IndieWeb wiki</strong>.</p>
-</div>
-  
-
-  <a class="u-url" href="/posts/bookmark/" rel="bookmark">
-    <time class="dt-published" datetime="2025-08-20">
-      20-08-2025
-    </time>
-  </a>
-</article>
-
-      
-    </li>
-  
-    
-    <li class="feed__item">
+    <li>
       
         <article class="h-entry h-entry--photo">
   
@@ -155,15 +149,18 @@
     </li>
   
     
-    <li class="feed__item">
+    <li>
       
-        <article class="h-entry h-entry--note">
-  <div class="e-content p-name">
-    <p>This is a <strong>short note</strong> without a title.</p>
-<p>Perfect for testing <code>note</code> rendering.</p>
+        <article class="h-entry h-entry--repost">
+  
+  <p>🔁 Reposted <a class="u-repost-of" href="https://example.com/someone-else/post">https://example.com/someone-else/post</a></p>
 
-  </div>
-  <a class="u-url" href="/posts/note/" rel="bookmark">
+  
+    <div class="e-content"><p>I wanted to reshare this post I found interesting.</p>
+</div>
+  
+
+  <a class="u-url" href="/posts/repost/" rel="bookmark">
     <time class="dt-published" datetime="2025-08-20">
       20-08-2025
     </time>
@@ -174,14 +171,20 @@
     </li>
   
     
-    <li class="feed__item">
+    <li>
       
-        <article class="h-entry h-entry--note">
-  <div class="e-content p-name">
-    <p>Micropub test of creating a basic h-entry</p>
+        <article class="h-entry h-entry--bookmark">
+  
+  <p>🔖 Bookmarked <a class="u-bookmark-of" href="https://indieweb.org/">https://indieweb.org/</a></p>
 
-  </div>
-  <a class="u-url" href="/posts/1755681613/" rel="bookmark">
+  
+
+  
+    <div class="e-content"><p>Saved a bookmark to the <strong>IndieWeb wiki</strong>.</p>
+</div>
+  
+
+  <a class="u-url" href="/posts/bookmark/" rel="bookmark">
     <time class="dt-published" datetime="2025-08-20">
       20-08-2025
     </time>
@@ -192,43 +195,22 @@
     </li>
   
     
-    <li class="feed__item">
+    <li>
       
-        <article class="h-entry h-entry--note">
+        <article class="h-entry h-entry--reply">
+  
+  <p>↩️ In reply to <a class="u-in-reply-to" href="https://example.com/someone-else/post">https://example.com/someone-else/post</a></p>
+
   <div class="e-content p-name">
-    <p>Micropub test of creating a basic h-entry</p>
+    <p>This is a <strong>reply post</strong>, pointing back to another URL.</p>
 
   </div>
-  <a class="u-url" href="/posts/1755681062/" rel="bookmark">
+
+  <a class="u-url" href="/posts/reply/" rel="bookmark">
     <time class="dt-published" datetime="2025-08-20">
       20-08-2025
     </time>
   </a>
-</article>
-
-      
-    </li>
-  
-    
-    <li class="feed__item">
-      
-        <article class="h-entry h-entry--article">
-  <h3 class="p-name">
-    <a class="u-url" href="/posts/article/" rel="bookmark">Why I Love IndieWeb</a>
-  </h3>
-  <time class="dt-published" datetime="2025-08-20">
-    20-08-2025
-  </time>
-  
-  
-    <ul class="tags">
-      
-        <li class="p-category">tag1</li>
-      
-        <li class="p-category">tag2</li>
-      
-    </ul>
-  
 </article>
 
       

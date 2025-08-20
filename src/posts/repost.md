@@ -1,7 +1,7 @@
 ---
 type: repost
-layout: layouts/repost.njk
-date: 2025-08-20T12:00:00Z
+layout: repost.njk
+date: '2025-08-20T09:28:28.615Z'
 tags:
   - tag1
 repost-of: https://example.com/someone-else/post

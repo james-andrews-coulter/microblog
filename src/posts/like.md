@@ -1,7 +1,7 @@
 ---
 type: like
-layout: layouts/like.njk
-date: 2025-08-20T11:30:00Z
+layout: like.njk
+date: '2025-08-20T09:32:28.615Z'
 tags:
   - tag1
 like-of: https://example.com/a-cool-article
