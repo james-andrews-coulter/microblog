@@ -33,6 +33,7 @@ module.exports = function (eleventyConfig) {
     "like",
     "repost",
     "reply",
+    "checkin",
   ];
   TYPES.forEach((t) => {
     eleventyConfig.addCollection(`${t}s`, (c) =>
