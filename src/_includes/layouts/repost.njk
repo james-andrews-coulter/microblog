@@ -1,0 +1,29 @@
+---
+layout: base
+---
+
+<article class="h-entry">
+  {% if tags %}
+  <ul>
+    {% for tag in tags %}
+      <li>{{ tag }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if repostOf %}
+    <p>🔁 Reposted <a class="u-repost-of" href="{{ repostOf }}">{{ repostOf }}</a></p>
+  {% endif %}
+
+  {% if content %}
+    <div class="e-content">
+      {{ content | safe }}
+    </div>
+  {% endif %}
+
+  <a class="u-url" href="{{ page.url }}">
+    <time class="dt-published" datetime="{{ date | htmlDateString }}">
+      {{ date | readableDate }}
+    </time>
+  </a>
+</article>

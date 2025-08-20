@@ -1,30 +1,23 @@
-<ul>
+{# _includes/postslist.njk #}
+<ul class="feed">
   {% for post in postslist %}
-    <li>
-      <article class="h-entry">
-        {% if post.data.type == "article" %}
-          <h3 class="p-name">
-           <a class="u-url" href="{{ post.url }}">{{ post.data.title }}</a>
-          </h3>
-          <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
-            {{ post.date | readableDate }}
-          </time>
-          {% if post.data.description %}
-            <p class="p-summary">{{ post.data.description }}</p>
-          {% endif %}
-
-        {% elif post.data.type == "note" %}
-          <div class="e-content p-name">
-            {{ post.templateContent | safe }}
-          </div>
-          <a class="u-url" href="{{ post.url }}">
-            <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
-              {{ post.date | readableDate }}
-            </time>
-          </a>
-        {% endif %}
-
-      </article>
+    {% set t = post.data.type or "note" %}
+    <li class="feed__item">
+      {% if t == "article" %}
+        {% include "components/card-article.njk" %}
+      {% elif t == "photo" %}
+        {% include "components/card-photo.njk" %}
+      {% elif t == "bookmark" %}
+        {% include "components/card-bookmark.njk" %}
+      {% elif t == "reply" %}
+        {% include "components/card-reply.njk" %}
+      {% elif t == "like" %}
+        {% include "components/card-like.njk" %}
+      {% elif t == "repost" %}
+        {% include "components/card-repost.njk" %}
+      {% else %}
+        {% include "components/card-note.njk" %}
+      {% endif %}
     </li>
   {% endfor %}
 </ul>

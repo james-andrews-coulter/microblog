@@ -1,0 +1,25 @@
+<article class="h-entry h-entry--photo">
+  {% set photos = post.data.photo | asArray %}
+  {% if photos.length %}
+    <div class="photos">
+      {% for p in photos %}
+        {% set src = p.url or p %}
+        {% set alt = p.alt or post.data.name or post.data.title or "Photo" %}
+        <figure>
+          <img class="u-photo" src="{{ src }}" alt="{{ alt }}">
+          {% if p.alt %}<figcaption>{{ p.alt }}</figcaption>{% endif %}
+        </figure>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% if post.templateContent %}
+    <div class="e-content">
+      {{ post.templateContent | safe }}
+    </div>
+  {% endif %}
+  <a class="u-url" href="{{ post.url }}" rel="bookmark">
+    <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+      {{ post.date | readableDate }}
+    </time>
+  </a>
+</article>

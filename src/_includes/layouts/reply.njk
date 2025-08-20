@@ -3,17 +3,22 @@ layout: base
 ---
 
 <article class="h-entry">
-    <ul>
-        {% for tag in tags %}
-        <li>
-            {{tag}}
-        </li>
-        {% endfor %}
-    </ul>
+  {% if tags %}
+  <ul>
+    {% for tag in tags %}
+      <li>{{ tag }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if inReplyTo %}
+    <p>↩️ In reply to <a class="u-in-reply-to" href="{{ inReplyTo }}">{{ inReplyTo }}</a></p>
+  {% endif %}
 
   <div class="e-content p-name">
     {{ content | safe }}
   </div>
+
   <a class="u-url" href="{{ page.url }}">
     <time class="dt-published" datetime="{{ date | htmlDateString }}">
       {{ date | readableDate }}

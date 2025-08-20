@@ -1,0 +1,14 @@
+<article class="h-entry h-entry--like">
+  {% set target = post.data["like-of"] | first %}
+  <p>👍 Liked <a class="u-like-of" href="{{ target }}">{{ target }}</a></p>
+
+  {% if post.templateContent %}
+    <div class="e-content">{{ post.templateContent | safe }}</div>
+  {% endif %}
+
+  <a class="u-url" href="{{ post.url }}" rel="bookmark">
+    <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+      {{ post.date | readableDate }}
+    </time>
+  </a>
+</article>

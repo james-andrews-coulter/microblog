@@ -1,0 +1,14 @@
+<article class="h-entry h-entry--repost">
+  {% set target = post.data["repost-of"] | first %}
+  <p>🔁 Reposted <a class="u-repost-of" href="{{ target }}">{{ target }}</a></p>
+
+  {% if post.templateContent %}
+    <div class="e-content">{{ post.templateContent | safe }}</div>
+  {% endif %}
+
+  <a class="u-url" href="{{ post.url }}" rel="bookmark">
+    <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+      {{ post.date | readableDate }}
+    </time>
+  </a>
+</article>

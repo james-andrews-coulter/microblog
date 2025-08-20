@@ -1,0 +1,18 @@
+<article class="h-entry h-entry--article">
+  <h3 class="p-name">
+    <a class="u-url" href="{{ post.url }}" rel="bookmark">{{ post.data.title }}</a>
+  </h3>
+  <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+    {{ post.date | readableDate }}
+  </time>
+  {% if post.data.summary or post.data.description %}
+    <p class="p-summary">{{ post.data.summary or post.data.description }}</p>
+  {% endif %}
+  {% if post.data.tags %}
+    <ul class="tags">
+      {% for tag in post.data.tags %}
+        <li class="p-category">{{ tag }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</article>

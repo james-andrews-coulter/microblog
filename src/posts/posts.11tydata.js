@@ -1,32 +1,71 @@
 // src/posts/posts.11tydata.js (ESM)
 export default {
-  // ensure everything here is part of your "posts" collection
-  tags: ["posts"],
+  // Everything in src/posts participates in your mixed feed
+  collectionType: "post",
 
   eleventyComputed: {
-    // If it has a title/name, treat as article; otherwise a note
-    type: (data) => (data.title || data.name ? "article" : "note"),
+    // Respect explicit type; otherwise infer from common Micropub props
+    type: (d) => {
+      if (d.type) return d.type;
+      if (d["bookmark-of"]) return "bookmark";
+      if (d["like-of"]) return "like";
+      if (d["repost-of"]) return "repost";
+      if (d["in-reply-to"]) return "reply";
+      if (d.photo) return "photo";
+      return d.title || d.name ? "article" : "note";
+    },
 
-    // Pick layout per type
-    layout: (data) =>
-      data.title || data.name ? "layouts/article.njk" : "layouts/note.njk",
+    // Pick layout per type, unless already set
+    layout: (d) => {
+      if (d.layout) return d.layout;
+      const t = d.type || (d.title || d.name ? "article" : "note");
+      switch (t) {
+        case "article":
+          return "layouts/article.njk";
+        case "photo":
+          return "layouts/photo.njk";
+        case "bookmark":
+          return "layouts/bookmark.njk";
+        case "like":
+          return "layouts/like.njk";
+        case "repost":
+          return "layouts/repost.njk";
+        case "reply":
+          return "layouts/reply.njk";
+        default:
+          return "layouts/note.njk";
+      }
+    },
 
-    // Build at /posts/<slug>/
-    permalink: (data) => {
+    // /posts/<slug>/
+    permalink: (d) => {
+      if (d.permalink) return d.permalink;
       const slug =
-        data.page?.fileSlug ?? data.page?.filePathStem?.split("/").pop() ?? "";
+        d.page?.fileSlug ?? d.page?.filePathStem?.split("/").pop() ?? "";
       return `/posts/${slug}/`;
     },
 
-    // Normalize Micropub content into a `body` value (optional)
-    body: (data) => {
-      const raw = data.content;
+    // Micropub niceties: normalize hyphenated/array properties
+    bookmarkOf: (d) =>
+      Array.isArray(d["bookmark-of"]) ? d["bookmark-of"][0] : d["bookmark-of"],
+    inReplyTo: (d) =>
+      Array.isArray(d["in-reply-to"]) ? d["in-reply-to"][0] : d["in-reply-to"],
+    likeOf: (d) =>
+      Array.isArray(d["like-of"]) ? d["like-of"][0] : d["like-of"],
+    repostOf: (d) =>
+      Array.isArray(d["repost-of"]) ? d["repost-of"][0] : d["repost-of"],
+    photos: (d) =>
+      Array.isArray(d.photo) ? d.photo : d.photo ? [d.photo] : [],
+
+    // Normalize content to a single body string
+    body: (d) => {
+      const raw = d.content;
       if (typeof raw === "string") return raw;
       if (raw && typeof raw === "object") return raw.html ?? raw.text ?? "";
       return "";
     },
 
-    // Optional: expose title for articles
-    title: (data) => data.title || data.name || undefined,
+    // Nice-to-have: expose a title if present
+    title: (d) => d.title || d.name || undefined,
   },
 };

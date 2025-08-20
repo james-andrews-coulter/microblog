@@ -1,3 +1,4 @@
+// MY ENDPOINT
 // api/micropub.js
 // ESM file (package.json has "type":"module")
 import { Readable } from "node:stream";
@@ -101,6 +102,159 @@ function missingEnv() {
   );
 }
 
+// ---------- type/layout helpers for triage ----------
+function deriveTypeFromFrontMatter(fmText) {
+  const has = (key) => new RegExp(`(^|\\n)${key}:`, "i").test(fmText);
+  if (has("type")) {
+    const m = fmText.match(/(^|\n)type:\s*("?)([a-zA-Z0-9_-]+)\2/i);
+    if (m?.[3]) return m[3].toLowerCase();
+  }
+  if (has("bookmark-of")) return "bookmark";
+  if (has("like-of")) return "like";
+  if (has("repost-of")) return "repost";
+  if (has("in-reply-to")) return "reply";
+  if (has("photo")) return "photo";
+  if (has("name") || has("title")) return "article";
+  return "note";
+}
+function layoutFor(type) {
+  switch (type) {
+    case "article":
+      return "layouts/article.njk";
+    case "photo":
+      return "layouts/photo.njk";
+    case "bookmark":
+      return "layouts/bookmark.njk";
+    case "like":
+      return "layouts/like.njk";
+    case "repost":
+      return "layouts/repost.njk";
+    case "reply":
+      return "layouts/reply.njk";
+    default:
+      return "layouts/note.njk";
+  }
+}
+
+// ---------- post-write patch to add collectionType/type/layout ----------
+async function patchFrontMatterInGitHub({ slug }) {
+  const {
+    GITHUB_TOKEN,
+    GITHUB_USER,
+    GITHUB_REPO,
+    GITHUB_BRANCH = "main",
+  } = process.env;
+
+  const base = "https://api.github.com";
+  const authHeaders = {
+    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    Accept: "application/vnd.github+json",
+  };
+
+  // Try common content paths/extensions created by the Micropub lib
+  const candidatePaths = [
+    `src/posts/${slug}.md`,
+    `src/posts/${slug}.mdx`,
+    `src/posts/${slug}.markdown`,
+    `src/posts/${slug}/index.md`,
+  ];
+
+  async function getContent(path) {
+    const url = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+    const resp = await fetch(url, { headers: authHeaders });
+    if (resp.ok) return { ok: true, json: await resp.json(), path };
+    return { ok: false };
+  }
+
+  let found = null;
+  for (const p of candidatePaths) {
+    const r = await getContent(p);
+    if (r.ok) {
+      found = r;
+      break;
+    }
+  }
+  if (!found) {
+    log("Could not find created file to patch for slug:", slug);
+    return;
+  }
+
+  const { json, path } = found;
+  const sha = json.sha;
+  const contentBuf = Buffer.from(json.content || "", "base64");
+  const contentStr = contentBuf.toString("utf8");
+
+  // Parse front matter block
+  const m = contentStr.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!m) {
+    // No front matter; add a minimal one
+    const type = "note";
+    const fm = [
+      "---",
+      `collectionType: post`,
+      `type: ${type}`,
+      `layout: ${layoutFor(type)}`,
+      "---",
+      "",
+    ].join("\n");
+    return putContent(
+      path,
+      fm + contentStr,
+      sha,
+      "chore(micropub): add front matter defaults",
+    );
+  }
+
+  let fmText = m[1];
+  const body = m[2];
+
+  const ensure = (key, value) => {
+    const has = new RegExp(`(^|\\n)${key}:`).test(fmText);
+    if (!has) fmText += `\n${key}: ${value}`;
+  };
+
+  // Always ensure collectionType
+  ensure("collectionType", "post");
+
+  // Ensure type
+  let type = deriveTypeFromFrontMatter(fmText);
+  ensure("type", type);
+
+  // Ensure layout only if missing
+  const hasLayout = /(^|\n)layout:/.test(fmText);
+  if (!hasLayout) {
+    fmText += `\nlayout: ${layoutFor(type)}`;
+  }
+
+  const updated = `---\n${fmText.replace(/\n{2,}$/, "\n")}\n---\n${body}`;
+  await putContent(
+    path,
+    updated,
+    sha,
+    "chore(micropub): normalize front matter",
+  );
+  log("Patched front matter for:", path);
+
+  async function putContent(path2, content, sha2, message) {
+    const url = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(path2)}`;
+    const payload = {
+      message,
+      branch: GITHUB_BRANCH,
+      sha: sha2,
+      content: Buffer.from(content, "utf8").toString("base64"),
+    };
+    const resp = await fetch(url, {
+      method: "PUT",
+      headers: { ...authHeaders, "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`GitHub content update failed: ${resp.status} ${text}`);
+    }
+  }
+}
+
 // ---------- lazy Micropub endpoint ----------
 let _endpoint = null;
 let _lastCreatedSlug = null;
@@ -141,6 +295,7 @@ async function getEndpoint() {
     // Advertised to clients
     config: {
       "media-endpoint": `${MICROPUB_BASE}/api/media`,
+      // Keep this minimal; clients may still send other h-entry shapes
       "post-types": [
         { type: "note", name: "Note" },
         { type: "article", name: "Article" },
@@ -206,8 +361,16 @@ export default async function handler(requestOrReq, resMaybe) {
     const webResp = await ep.micropubHandler(webReq);
 
     // --- Patch Location to your real page URL: /posts/<slug>/ ---
+    let patched = webResp;
     try {
       if (webResp.status === 201 && _lastCreatedSlug) {
+        // Normalize front matter in GitHub now that the file exists
+        try {
+          await patchFrontMatterInGitHub({ slug: _lastCreatedSlug });
+        } catch (patchErr) {
+          log("Post-write patch failed:", patchErr?.message || patchErr);
+        }
+
         const base =
           process.env.MICROPUB_BASE || `${url.protocol}//${url.host}`;
         const headers = new Headers(webResp.headers);
@@ -215,18 +378,17 @@ export default async function handler(requestOrReq, resMaybe) {
           "Location",
           new URL(`/posts/${_lastCreatedSlug}/`, base).toString(),
         );
-        const patched = new Response(webResp.body, {
+        patched = new Response(webResp.body, {
           status: webResp.status,
           headers,
         });
-        return sendResponse(resMaybe, patched);
       }
     } catch {
       /* ignore and fall through */
     }
     // -------------------------------------------------------------
 
-    return sendResponse(resMaybe, webResp);
+    return sendResponse(resMaybe, patched);
   } catch (err) {
     log("Handler error:", err?.stack || err?.message || String(err));
     const ResponseCtor =

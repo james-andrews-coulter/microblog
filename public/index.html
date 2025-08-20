@@ -21,78 +21,181 @@
     </h1>
     <p class="p-note" >I'm an Australian Product Designer living in Europe. I like to fix my bike, write on my blog, and play guitar. </p>
 </div>
+<hr>
 </header>
 
         <main>
             <div class="h-feed section">
 <h2>Feed</h2>
 
-<ul>
+
+<ul class="feed">
   
-    <li>
-      <article class="h-entry">
-        
-          <h3 class="p-name">
-           <a class="u-url" href="/posts/test-article/">test article</a>
-          </h3>
-          <time class="dt-published" datetime="2025-08-19">
-            19-08-2025
-          </time>
-          
+    
+    <li class="feed__item">
+      
+        <article class="h-entry h-entry--repost">
+  
+  <p>🔁 Reposted <a class="u-repost-of" href="https://example.com/someone-else/post">https://example.com/someone-else/post</a></p>
 
-        
+  
+    <div class="e-content"><p>I wanted to reshare this post I found interesting.</p>
+</div>
+  
 
-      </article>
+  <a class="u-url" href="/posts/repost/" rel="bookmark">
+    <time class="dt-published" datetime="2025-08-20">
+      20-08-2025
+    </time>
+  </a>
+</article>
+
+      
     </li>
   
-    <li>
-      <article class="h-entry">
-        
-          <div class="e-content p-name">
-            <p>hello world!</p>
+    
+    <li class="feed__item">
+      
+        <article class="h-entry h-entry--like">
+  
+  <p>👍 Liked <a class="u-like-of" href="https://example.com/a-cool-article">https://example.com/a-cool-article</a></p>
 
-          </div>
-          <a class="u-url" href="/posts/1755639550/">
-            <time class="dt-published" datetime="2025-08-19">
-              19-08-2025
-            </time>
-          </a>
-        
+  
+    <div class="e-content"><p>I liked this cool article.</p>
+</div>
+  
 
-      </article>
+  <a class="u-url" href="/posts/like/" rel="bookmark">
+    <time class="dt-published" datetime="2025-08-20">
+      20-08-2025
+    </time>
+  </a>
+</article>
+
+      
     </li>
   
-    <li>
-      <article class="h-entry">
-        
-          <h3 class="p-name">
-           <a class="u-url" href="/posts/article-1/">My first article</a>
-          </h3>
-          <time class="dt-published" datetime="2025-08-19">
-            19-08-2025
-          </time>
-          
+    
+    <li class="feed__item">
+      
+        <article class="h-entry h-entry--reply">
+  
+  <p>↩️ In reply to <a class="u-in-reply-to" href="https://example.com/someone-else/post">https://example.com/someone-else/post</a></p>
 
-        
+  <div class="e-content p-name">
+    <p>This is a <strong>reply post</strong>, pointing back to another URL.</p>
 
-      </article>
+  </div>
+
+  <a class="u-url" href="/posts/reply/" rel="bookmark">
+    <time class="dt-published" datetime="2025-08-20">
+      20-08-2025
+    </time>
+  </a>
+</article>
+
+      
     </li>
   
-    <li>
-      <article class="h-entry">
-        
-          <div class="e-content p-name">
-            <p>This is a short note.</p>
+    
+    <li class="feed__item">
+      
+        <article class="h-entry h-entry--bookmark">
+  
+  <p>🔖 Bookmarked <a class="u-bookmark-of" href="https://indieweb.org/">https://indieweb.org/</a></p>
 
-          </div>
-          <a class="u-url" href="/posts/note-1/">
-            <time class="dt-published" datetime="2025-08-19">
-              19-08-2025
-            </time>
-          </a>
-        
+  
 
-      </article>
+  
+    <div class="e-content"><p>Saved a bookmark to the <strong>IndieWeb wiki</strong>.</p>
+</div>
+  
+
+  <a class="u-url" href="/posts/bookmark/" rel="bookmark">
+    <time class="dt-published" datetime="2025-08-20">
+      20-08-2025
+    </time>
+  </a>
+</article>
+
+      
+    </li>
+  
+    
+    <li class="feed__item">
+      
+        <article class="h-entry h-entry--photo">
+  
+  
+    <div class="photos">
+      
+        
+        
+        <figure>
+          <img class="u-photo" src="/images/post-1.jpg" alt="test photo">
+          <figcaption>test photo</figcaption>
+        </figure>
+      
+    </div>
+  
+  
+    <div class="e-content">
+      <p>Here’s a caption for my test <strong>photo post</strong>.</p>
+
+    </div>
+  
+  <a class="u-url" href="/posts/photo/" rel="bookmark">
+    <time class="dt-published" datetime="2025-08-20">
+      20-08-2025
+    </time>
+  </a>
+</article>
+
+      
+    </li>
+  
+    
+    <li class="feed__item">
+      
+        <article class="h-entry h-entry--note">
+  <div class="e-content p-name">
+    <p>This is a <strong>short note</strong> without a title.</p>
+<p>Perfect for testing <code>note</code> rendering.</p>
+
+  </div>
+  <a class="u-url" href="/posts/note/" rel="bookmark">
+    <time class="dt-published" datetime="2025-08-20">
+      20-08-2025
+    </time>
+  </a>
+</article>
+
+      
+    </li>
+  
+    
+    <li class="feed__item">
+      
+        <article class="h-entry h-entry--article">
+  <h3 class="p-name">
+    <a class="u-url" href="/posts/article/" rel="bookmark">Why I Love IndieWeb</a>
+  </h3>
+  <time class="dt-published" datetime="2025-08-20">
+    20-08-2025
+  </time>
+  
+  
+    <ul class="tags">
+      
+        <li class="p-category">tag1</li>
+      
+        <li class="p-category">tag2</li>
+      
+    </ul>
+  
+</article>
+
+      
     </li>
   
 </ul>

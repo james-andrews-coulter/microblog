@@ -1,0 +1,20 @@
+<article class="h-entry h-entry--bookmark">
+  {% set target = post.data["bookmark-of"] | first %}
+  <p>🔖 Bookmarked <a class="u-bookmark-of" href="{{ target }}">{{ target }}</a></p>
+
+  {% if post.data.title or post.data.name %}
+    <h3 class="p-name">
+      <a class="u-url" href="{{ post.url }}" rel="bookmark">{{ post.data.title or post.data.name }}</a>
+    </h3>
+  {% endif %}
+
+  {% if post.templateContent %}
+    <div class="e-content">{{ post.templateContent | safe }}</div>
+  {% endif %}
+
+  <a class="u-url" href="{{ post.url }}" rel="bookmark">
+    <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+      {{ post.date | readableDate }}
+    </time>
+  </a>
+</article>

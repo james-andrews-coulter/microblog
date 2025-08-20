@@ -1,0 +1,33 @@
+---
+layout: base
+---
+
+<article class="h-entry">
+  {% if tags %}
+  <ul>
+    {% for tag in tags %}
+      <li>{{ tag }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if bookmarkOf %}
+    <p>🔖 Bookmarked <a class="u-bookmark-of" href="{{ bookmarkOf }}">{{ bookmarkOf }}</a></p>
+  {% endif %}
+
+  {% if title or name %}
+    <h2 class="p-name">{{ title or name }}</h2>
+  {% endif %}
+
+  {% if content %}
+    <div class="e-content">
+      {{ content | safe }}
+    </div>
+  {% endif %}
+
+  <a class="u-url" href="{{ page.url }}">
+    <time class="dt-published" datetime="{{ date | htmlDateString }}">
+      {{ date | readableDate }}
+    </time>
+  </a>
+</article>

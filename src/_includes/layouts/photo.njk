@@ -1,0 +1,39 @@
+---
+layout: base
+---
+
+<article class="h-entry">
+  {% if tags %}
+  <ul>
+    {% for tag in tags %}
+      <li>{{ tag }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {# one or many photos; supports string or {url, alt} objects via 'photos' alias #}
+  {% if photos and photos.length %}
+    <div class="photos">
+      {% for p in photos %}
+        {% set src = p.url or p %}
+        {% set alt = p.alt or title or name or "Photo" %}
+        <figure>
+          <img class="u-photo" src="{{ src }}" alt="{{ alt }}">
+          {% if p.alt %}<figcaption>{{ p.alt }}</figcaption>{% endif %}
+        </figure>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if content %}
+  <div class="e-content">
+    {{ content | safe }}
+  </div>
+  {% endif %}
+
+  <a class="u-url" href="{{ page.url }}">
+    <time class="dt-published" datetime="{{ date | htmlDateString }}">
+      {{ date | readableDate }}
+    </time>
+  </a>
+</article>
