@@ -9,7 +9,7 @@ const log = (...a) => {
   } catch {}
 };
 const AMBIGUOUS_TYPES = new Set(["entry", "h-entry", "post"]);
-const PUBLIC_POSTS_PREFIX = "/posts/"; // public URL prefix
+const PUBLIC_POSTS_PREFIX = "/posts/"; // public URL prefix used on-site
 
 function getUrlFromRequestLike(req) {
   if (typeof req?.url === "string" && typeof req?.headers?.get === "function") {
@@ -80,7 +80,7 @@ const hasKey = (fm, key) => new RegExp(`(^|\\n)\\s*${key}:`, "i").test(fm);
 
 function inferTypeFromFM(fm) {
   if (hasKey(fm, "bookmark-of")) return "bookmark";
-  if (hasKey(fm, "checkin")) return "checkin"; // fixed
+  if (hasKey(fm, "checkin")) return "checkin";
   if (hasKey(fm, "like-of")) return "like";
   if (hasKey(fm, "repost-of")) return "repost";
   if (hasKey(fm, "in-reply-to")) return "reply";
@@ -115,6 +115,31 @@ const replaceLine = (fm, key, val) =>
   hasKey(fm, key)
     ? fm.replace(new RegExp(`^\\s*${key}:.*$`, "im"), `${key}: ${val}`)
     : `${fm}\n${key}: ${val}`;
+
+// Convert `tags: value` or `tags: [a, "b"]` → block list
+function coerceTagsToBlockList(fm) {
+  // inline list -> block
+  fm = fm.replace(/^\s*tags:\s*\[(.*?)\]\s*$/im, (_m, inner) => {
+    const items = inner
+      .split(",")
+      .map((s) => s.trim().replace(/^['"]|['"]$/g, ""))
+      .filter(Boolean);
+    return items.length
+      ? `tags:\n${items.map((t) => `  - ${t}`).join("\n")}`
+      : "tags: []";
+  });
+  // scalar -> block
+  fm = fm.replace(
+    /^\s*tags:\s*(['"]?)([^\[\-\n][^\n]*?)\1\s*$/im,
+    (_m, _q, v) => {
+      const clean = v.trim();
+      return clean
+        ? `tags:\n  - ${clean.replace(/^['"]|['"]$/g, "")}`
+        : "tags: []";
+    },
+  );
+  return fm;
+}
 
 // ---------- post-write patch (normalize front matter) ----------
 async function patchFrontMatterInGitHub({ slug }) {
@@ -178,13 +203,16 @@ async function patchFrontMatterInGitHub({ slug }) {
   // Force layout to match final type
   fm = replaceLine(fm, "layout", layoutFor(finalType));
 
-  // Optional: normalize passthrough image URLs
+  // Normalize passthrough image URLs
   fm = fm.replace(/(https?:\/\/[^\/]+)?\/src\/images\//g, "/images/");
+
+  // Coerce tags into a YAML block list
+  fm = coerceTagsToBlockList(fm);
 
   const updated = `---\n${fm}\n---\n${body}`;
   const putUrl = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(file.path)}`;
   const payload = {
-    message: "chore(micropub): normalize type/layout",
+    message: "chore(micropub): normalize type/layout/tags",
     branch: GITHUB_BRANCH,
     sha: file.sha,
     content: Buffer.from(updated, "utf8").toString("base64"),
@@ -197,6 +225,69 @@ async function patchFrontMatterInGitHub({ slug }) {
   if (!put.ok)
     throw new Error(`GitHub update failed: ${put.status} ${await put.text()}`);
   log("patched:", file.path, "→ type:", finalType);
+}
+
+// Extract action + slug from a POST request (so we can patch after updates)
+async function prepareRequestAndExtractAction(webReq) {
+  const method = (webReq.method || "GET").toUpperCase();
+  if (method !== "POST") return { req: webReq, action: null, slug: null };
+
+  const ct = (webReq.headers.get("content-type") || "").toLowerCase();
+
+  // JSON body
+  if (ct.includes("application/json")) {
+    const raw = await webReq.text();
+    try {
+      const obj = JSON.parse(raw);
+      const action = obj.action || null;
+      let slug = null;
+      if (obj.url) {
+        try {
+          const u = new URL(obj.url);
+          const parts = u.pathname.replace(/\/+$/, "").split("/");
+          slug = parts.pop(); // last segment
+        } catch {}
+      }
+      const req = new Request(webReq.url, {
+        method: "POST",
+        headers: webReq.headers,
+        body: JSON.stringify(obj),
+      });
+      return { req, action, slug };
+    } catch {
+      // put body back unchanged
+      const req = new Request(webReq.url, {
+        method: "POST",
+        headers: webReq.headers,
+        body: raw,
+      });
+      return { req, action: null, slug: null };
+    }
+  }
+
+  // x-www-form-urlencoded
+  if (ct.includes("application/x-www-form-urlencoded")) {
+    const raw = await webReq.text();
+    const params = new URLSearchParams(raw);
+    const action = params.get("action");
+    let slug = null;
+    const u = params.get("url");
+    if (u) {
+      try {
+        const url = new URL(u);
+        const parts = url.pathname.replace(/\/+$/, "").split("/");
+        slug = parts.pop();
+      } catch {}
+    }
+    const req = new Request(webReq.url, {
+      method: "POST",
+      headers: webReq.headers,
+      body: params.toString(),
+    });
+    return { req, action, slug };
+  }
+
+  return { req: webReq, action: null, slug: null };
 }
 
 // ---------- Micropub endpoint ----------
@@ -223,12 +314,11 @@ async function getEndpoint() {
       user: GITHUB_USER,
       repo: GITHUB_REPO,
       branch: GITHUB_BRANCH,
-      // IMPORTANT: make URLs and storage align
-      contentDir: "src", // was "src/posts"
+      contentDir: "src", // storage root
     }),
-    me: ME,
+    me: ME, // must end with /
     tokenEndpoint: TOKEN_ENDPOINT,
-    contentDir: "src", // for media/path hints inside the endpoint (kept, but store above rules)
+    contentDir: "src", // base dir for endpoint paths
     mediaDir: "src/images",
     translateProps: true,
     config: {
@@ -238,10 +328,10 @@ async function getEndpoint() {
         { type: "article", name: "Article" },
       ],
     },
-    // Files should land at src/posts/<slug>.md while public URL is /posts/<slug>/
+    // Store at src/posts/<slug>.md; public URL is /posts/<slug>/
     formatSlug: (_type, slug) => {
-      _lastCreatedSlug = slug; // e.g., "1755695972"
-      return `posts/${slug}`; // store path under contentDir ("src") → "src/posts/<slug>.md"
+      _lastCreatedSlug = slug;
+      return `posts/${slug}`;
     },
   });
 
@@ -293,7 +383,13 @@ export default async function handler(reqOrRequest, resMaybe) {
 
   try {
     const ep = await getEndpoint();
-    const webReq = await toWebRequest(reqOrRequest);
+    const webReqOriginal = await toWebRequest(reqOrRequest);
+    const {
+      req: webReq,
+      action,
+      slug,
+    } = await prepareRequestAndExtractAction(webReqOriginal);
+
     const webResp = await ep.micropubHandler(webReq);
 
     // After create, normalize FM and set public Location (/posts/<slug>/)
@@ -314,6 +410,19 @@ export default async function handler(reqOrRequest, resMaybe) {
         resMaybe,
         new ResponseCtor(webResp.body, { status: 201, headers }),
       );
+    }
+
+    // After update, normalize FM too (to coerce tags to block list, etc.)
+    if (
+      action === "update" &&
+      (webResp.status === 204 || webResp.status === 200) &&
+      slug
+    ) {
+      try {
+        await patchFrontMatterInGitHub({ slug });
+      } catch (e) {
+        log("patch(update) error:", e.message);
+      }
     }
 
     return sendResponse(resMaybe, webResp);
