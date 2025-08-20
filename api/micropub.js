@@ -163,9 +163,6 @@ async function patchFrontMatterInGitHub({ slug }) {
   let fm = m[1];
   const body = m[2];
 
-  // Ensure collectionType
-  if (!hasKey(fm, "collectionType")) fm += `\ncollectionType: post`;
-
   // Read existing type and normalize ambiguity
   const typeMatch = fm.match(/^\s*type:\s*("?)([a-zA-Z0-9_-]+)\1\s*$/im);
   let existingType = typeMatch?.[2]?.toLowerCase();
