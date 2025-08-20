@@ -5,6 +5,9 @@ export default {
   permalink: "posts/{{ page.fileSlug }}/index.html",
 
   eleventyComputed: {
+    // Normalise tags
+    tags: (d) => (Array.isArray(d.tags) ? d.tags : d.tags ? [d.tags] : []),
+
     // Friendly aliases for hyphenated Micropub props (clients often send arrays)
     bookmarkOf: (d) =>
       Array.isArray(d["bookmark-of"]) ? d["bookmark-of"][0] : d["bookmark-of"],
