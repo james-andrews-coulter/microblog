@@ -103,7 +103,7 @@ function layoutFor(type) {
     case "reply":
       return "reply.njk";
     case "checkin":
-      return "note.njk";
+      return "checkin.njk";
     default:
       return "note.njk";
   }
