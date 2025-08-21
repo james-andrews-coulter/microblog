@@ -155,6 +155,55 @@ async function patchFrontMatterInGitHub({ slug }) {
     Accept: "application/vnd.github+json",
   };
 
+  // ---------- post-delete helper ----------
+  async function deleteFromGitHub({ slug }) {
+    const {
+      GITHUB_TOKEN,
+      GITHUB_USER,
+      GITHUB_REPO,
+      GITHUB_BRANCH = "main",
+    } = process.env;
+    const base = "https://api.github.com";
+    const auth = {
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github+json",
+    };
+
+    const paths = [
+      `src/posts/${slug}.md`,
+      `src/posts/${slug}.mdx`,
+      `src/posts/${slug}.markdown`,
+      `src/posts/${slug}/index.md`,
+    ];
+
+    for (const p of paths) {
+      const url = `${base}/repos/${encodeURIComponent(GITHUB_USER)}/${encodeURIComponent(GITHUB_REPO)}/contents/${encodeURIComponent(p)}?ref=${encodeURIComponent(GITHUB_BRANCH)}`;
+      const r = await fetch(url, { headers: auth });
+      if (!r.ok) continue;
+      const j = await r.json();
+
+      // Delete the file
+      const del = await fetch(url, {
+        method: "DELETE",
+        headers: { ...auth, "content-type": "application/json" },
+        body: JSON.stringify({
+          message: "chore(micropub): delete post",
+          branch: GITHUB_BRANCH,
+          sha: j.sha,
+        }),
+      });
+      if (!del.ok) {
+        throw new Error(
+          `GitHub delete failed: ${del.status} ${await del.text()}`,
+        );
+      }
+      log("deleted:", p);
+      return;
+    }
+
+    log("delete: file not found for slug", slug);
+  }
+
   const paths = [
     `src/posts/${slug}.md`,
     `src/posts/${slug}.mdx`,
@@ -422,6 +471,14 @@ export default async function handler(reqOrRequest, resMaybe) {
         await patchFrontMatterInGitHub({ slug });
       } catch (e) {
         log("patch(update) error:", e.message);
+      }
+      // After delete, remove the file from GitHub
+      if (action === "delete" && webResp.status === 204 && slug) {
+        try {
+          await deleteFromGitHub({ slug });
+        } catch (e) {
+          log("delete error:", e.message);
+        }
       }
     }
 
