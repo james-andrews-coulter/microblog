@@ -78,6 +78,17 @@ function missingEnv() {
 // ---------- type/layout helpers ----------
 const hasKey = (fm, key) => new RegExp(`(^|\\n)\\s*${key}:`, "i").test(fm);
 
+const POST_TYPES = [
+  { type: "note", name: "Note" },
+  { type: "article", name: "Article" },
+  { type: "photo", name: "Photo" },
+  { type: "bookmark", name: "Bookmark" },
+  { type: "like", name: "Like" },
+  { type: "repost", name: "Repost" },
+  { type: "reply", name: "Reply" },
+  { type: "checkin", name: "Checkin" },
+];
+
 function inferTypeFromFM(fm) {
   if (hasKey(fm, "bookmark-of")) return "bookmark";
   if (hasKey(fm, "checkin")) return "checkin";
@@ -370,10 +381,7 @@ async function getEndpoint() {
     translateProps: true,
     config: {
       "media-endpoint": `${MICROPUB_BASE}/api/media`,
-      "post-types": [
-        { type: "note", name: "Note" },
-        { type: "article", name: "Article" },
-      ],
+      "post-types": POST_TYPES,
     },
     // Store at src/posts/<slug>.md; public URL is /posts/<slug>/
     formatSlug: (_type, slug) => {
@@ -398,10 +406,7 @@ export default async function handler(reqOrRequest, resMaybe) {
     const base = process.env.MICROPUB_BASE || `${url.protocol}//${url.host}`;
     const body = {
       "media-endpoint": `${base}/api/media`,
-      "post-types": [
-        { type: "note", name: "Note" },
-        { type: "article", name: "Article" },
-      ],
+      "post-types": POST_TYPES,
     };
     const ResponseCtor = globalThis.Response;
     return sendResponse(
