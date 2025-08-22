@@ -75,16 +75,37 @@ export default async function handler(requestOrReq, resMaybe) {
         resMaybe,
         new ResponseCtor(
           JSON.stringify({ error: "Micropub not initialized" }),
-          {
-            status: 500,
-            headers: { "content-type": "application/json" },
-          },
+          { status: 500, headers: { "content-type": "application/json" } },
         ),
       );
     }
+
+    const reqUrl = getUrlFromRequestLike(requestOrReq);
     const webReq = await toWebRequest(requestOrReq);
     const resp = await ep.mediaHandler(webReq);
-    return sendResponse(resMaybe, resp);
+
+    // Rewrite Location: /src/images/...  ->  /images/...
+    let patched = resp;
+    try {
+      if (resp.status === 201) {
+        const headers = new Headers(resp.headers);
+        const loc = headers.get("Location") || headers.get("location");
+        if (loc) {
+          const base =
+            process.env.MICROPUB_BASE || `${reqUrl.protocol}//${reqUrl.host}`;
+          const fixedPath = loc.replace(
+            /(https?:\/\/[^/]+)?\/src\/images\//,
+            "/images/",
+          );
+          headers.set("Location", new URL(fixedPath, base).toString());
+          // Expose Location for browsers
+          headers.set("Access-Control-Expose-Headers", "Location");
+          patched = new Response(resp.body, { status: resp.status, headers });
+        }
+      }
+    } catch {}
+
+    return sendResponse(resMaybe, patched);
   } catch (err) {
     const ResponseCtor =
       globalThis.Response || (await import("node-fetch")).Response;
