@@ -1,7 +1,7 @@
 // eleventy.config.cjs
 module.exports = function (eleventyConfig) {
   // Static assets
-  eleventyConfig.addPassthroughCopy("src/images");
+  eleventyConfig.addPassthroughCopy({ "src/images": "images" });
 
   // ---- Robust date helpers (parse strings or Dates consistently) ----
   const toMs = (d) => {
