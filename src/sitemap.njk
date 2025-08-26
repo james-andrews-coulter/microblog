@@ -9,10 +9,8 @@ eleventyExcludeFromCollections: true
   {% if item.url and (item.data.sitemap is not defined or item.data.sitemap != false) %}
     <url>
       <loc>{{ site.url }}{{ item.url | url }}</loc>
-      {% if item.data.updated %}
-        <lastmod>{{ item.data.updated | date("yyyy-LL-dd") }}</lastmod>
-      {% elif item.date %}
-        <lastmod>{{ item.date | date("yyyy-LL-dd") }}</lastmod>
+      {% if item.data.updated or item.date %}
+        <lastmod>{{ (item.data.updated or item.date) | htmlDateString }}</lastmod>
       {% endif %}
       <changefreq>weekly</changefreq>
       <priority>0.5</priority>
