@@ -1,4 +1,6 @@
-// eleventy.config.cjs
+const fs = require("fs");
+const path = require("path");
+
 module.exports = function (eleventyConfig) {
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
@@ -72,7 +74,25 @@ module.exports = function (eleventyConfig) {
     Array.isArray(v) ? v : v ? [v] : [],
   );
 
-  // ---- Dirs ----
+  eleventyConfig.addFilter("wmLoad", function (targetUrl) {
+    try {
+      const slug = Buffer.from(String(targetUrl)).toString("base64url");
+      const file = path.join(
+        process.cwd(),
+        "data",
+        "webmentions",
+        `${slug}.json`,
+      );
+      const raw = fs.readFileSync(file, "utf8");
+      return JSON.parse(raw);
+    } catch (e) {
+      return {
+        counts: { total: 0, reply: 0, like: 0, repost: 0, mention: 0 },
+        items: [],
+      };
+    }
+  });
+
   return {
     dir: {
       input: "src",
