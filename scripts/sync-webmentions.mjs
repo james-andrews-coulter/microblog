@@ -16,7 +16,6 @@ const normalize = (u) => {
   try {
     const x = new URL(u);
     x.hash = "";
-    if (x.pathname.endsWith("/")) x.pathname = x.pathname.slice(0, -1);
     return x.toString();
   } catch {
     return u;
