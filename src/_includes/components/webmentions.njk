@@ -2,76 +2,77 @@
 {% set target = site.url + (page.url | url) %}
 {% set wm = target | wmLoad %}
 
-<section>
-    <h2>Responses ({{ wm.counts.total or 0 }})</h2>
+<section class="webmentions">
+  <h2>Responses ({{ wm.counts.total or 0 }})</h2>
+  <p>👍 {{ wm.counts.like or 0 }} · 🔁 {{ wm.counts.repost or 0 }} · 💬 {{ wm.counts.reply or 0 }} · ✨ {{ wm.counts.mention or 0 }}</p>
 
-    {# Reaction summary #}
-<p>
-👍 {{ wm.counts.like or 0}}
-🔁 {{ wm.counts.repost or 0}}
-↩️ {{ wm.counts.reply or 0}}
-💬 {{ wm.counts.mention or 0}}
-</p>
+  {# Replies: include both "in-reply-to" and "reply" #}
+  {% set replies = (wm.items | selectattr("wm-property","equalto","in-reply-to") | list)
+                 + (wm.items | selectattr("wm-property","equalto","reply") | list) %}
 
-{# Replies #}
-  {% set replies = wm.items | selectattr("wm-property", "equalto", "reply") | list %}
   {% if replies | length %}
-  <div class="wm-replies">
-    {% for m in replies %}
-      <article class="wm-reply">
-        <header>
-          <a href="{{ (m.author and m.author.url) or m.url | default('#') }}">
-            {% if m.author and m.author.photo %}
-              <img src="{{ m.author.photo }}" alt="" width="32" height="32" loading="lazy">
+    <div class="wm-replies">
+      {% for m in replies %}
+        <article class="wm-reply">
+          <header>
+            <a href="{{ (m.author and m.author.url) or m.url | default('#') }}">
+              {% if m.author and m.author.photo %}
+                <img src="{{ m.author.photo }}" alt="" width="32" height="32" loading="lazy">
+              {% endif %}
+              <strong>{{ (m.author and m.author.name) or (m.url and (m.url | url)) }}</strong>
+            </a>
+            {% if m.published %}
+              <time datetime="{{ m.published }}">{{ m.published | htmlDateString }}</time>
             {% endif %}
-            <strong>{{ (m.author and m.author.name) or (m.url and (m.url | url)) }}</strong>
-          </a>
-          {% if m.published %}
-            <time datetime="{{ m.published }}">{{ m.published | htmlDateString }}</time>
-          {% endif %}
-        </header>
-        <p>{{ (m.content and m.content.text) or "" | escape }}</p>
-        <p><a href="{{ m.url }}">Permalink</a></p>
-      </article>
-    {% endfor %}
-  </div>
+          </header>
+          <p>{{ (m.content and m.content.text) or "" | escape }}</p>
+          <p><a href="{{ m.url }}">Permalink</a></p>
+        </article>
+      {% endfor %}
+    </div>
   {% endif %}
 
-  {# Likes + Reposts as avatar rows #}
-    {% set likes = wm.items | selectattr("wm-property", "equalto", "like") | list %}
-    {% set reposts = wm.items | selectattr("wm-property", "equalto", "repost") | list %}
+  {# Likes & Reposts: include both "-of" and plain #}
+  {% set likes = (wm.items | selectattr("wm-property","equalto","like-of") | list)
+               + (wm.items | selectattr("wm-property","equalto","like") | list) %}
+  {% set reposts = (wm.items | selectattr("wm-property","equalto","repost-of") | list)
+                 + (wm.items | selectattr("wm-property","equalto","repost") | list) %}
+  {% set mentions = (wm.items | selectattr("wm-property","equalto","mention-of") | list)
+                  + (wm.items | selectattr("wm-property","equalto","mention") | list) %}
 
-    {% if likes | length %}
+  {% if likes | length %}
     <div class="wm-likes">
       <h3>Likes ({{ likes | length }})</h3>
-      <p class="wm-faces">
+      <p>
         {% for m in likes %}
-          <a class="wm-face" href="{{ (m.author and m.author.url) or m.url | default('#') }}" title="{{ (m.author and m.author.name) or '' }}">
+          <a href="{{ (m.author and m.author.url) or m.url | default('#') }}" title="{{ (m.author and m.author.name) or '' }}">
             {% if m.author and m.author.photo %}
-              <img src="{{ m.author.photo }}" alt="{{ (m.author and m.author.name) or '' }}" width="24" height="24" loading="lazy">
-            {% else %}
-              <span>•</span>
-            {% endif %}
+              <img src="{{ m.author.photo }}" alt="" width="24" height="24" loading="lazy">
+            {% else %}<span>•</span>{% endif %}
           </a>
         {% endfor %}
       </p>
     </div>
-    {% endif %}
+  {% endif %}
 
-    {% if reposts | length %}
-      <div class="wm-reposts">
-        <h3>Reposts ({{ reposts | length }})</h3>
-        <p class="wm-faces">
-          {% for m in reposts %}
-            <a class="wm-face" href="{{ (m.author and m.author.url) or m.url | default('#') }}" title="{{ (m.author and m.author.name) or '' }}">
-              {% if m.author and m.author.photo %}
-                <img src="{{ m.author.photo }}" alt="{{ (m.author and m.author.name) or '' }}" width="24" height="24" loading="lazy">
-              {% else %}
-                <span>•</span>
-              {% endif %}
-            </a>
-          {% endfor %}
-        </p>
-      </div>
-      {% endif %}
-    </section>
+  {% if reposts | length %}
+    <div class="wm-reposts">
+      <h3>Reposts ({{ reposts | length }})</h3>
+      <p>
+        {% for m in reposts %}
+          <a href="{{ (m.author and m.author.url) or m.url | default('#') }}" title="{{ (m.author and m.author.name) or '' }}">
+            {% if m.author and m.author.photo %}
+              <img src="{{ m.author.photo }}" alt="" width="24" height="24" loading="lazy">
+            {% else %}<span>•</span>{% endif %}
+          </a>
+        {% endfor %}
+      </p>
+    </div>
+  {% endif %}
+
+  {% if mentions | length %}
+    <div class="wm-mentions">
+      <h3>Mentions ({{ mentions | length }})</h3>
+    </div>
+  {% endif %}
+</section>
