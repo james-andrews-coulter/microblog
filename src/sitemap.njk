@@ -5,17 +5,18 @@ eleventyExcludeFromCollections: true
 
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{% for item in collections.all
-  | filter(i => i.url)
-  | filter(i => not i.data.sitemap is defined or i.data.sitemap != false)
-  | filter(i => i.url.endsWith('/') or i.url.endsWith('.html')) %}
-  <url>
-    <loc>{{ site.url }}{{ item.url | url }}</loc>
-    {% if item.date %}
-      <lastmod>{{ item.date | date("yyyy-LL-dd") }}</lastmod>
-    {% endif %}
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
+{% for item in collections.all %}
+  {% if item.url and (item.data.sitemap is not defined or item.data.sitemap != false) %}
+    <url>
+      <loc>{{ site.url }}{{ item.url | url }}</loc>
+      {% if item.data.updated %}
+        <lastmod>{{ item.data.updated | date("yyyy-LL-dd") }}</lastmod>
+      {% elif item.date %}
+        <lastmod>{{ item.date | date("yyyy-LL-dd") }}</lastmod>
+      {% endif %}
+      <changefreq>weekly</changefreq>
+      <priority>0.5</priority>
+    </url>
+  {% endif %}
 {% endfor %}
 </urlset>
