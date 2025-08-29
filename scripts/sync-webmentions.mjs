@@ -38,7 +38,7 @@ async function getSitemapUrls() {
 
 async function fetchAllMentionsFor(target) {
   const out = [];
-  let page = 1;
+  let page = 0;
   while (true) {
     const url = new URL("https://webmention.io/api/mentions.jf2");
     url.searchParams.set("target", target);
@@ -55,18 +55,30 @@ async function fetchAllMentionsFor(target) {
   return out;
 }
 
-// NEW: fetch both /post and /post/ then merge (dedupe by wm-id/url/source)
 async function fetchBothForms(targetInput) {
-  const canon = withSlash(normalize(targetInput)); // always save under with-slash
-  const [A, B] = await Promise.all([
-    fetchAllMentionsFor(withoutSlash(canon)).catch(() => []),
-    fetchAllMentionsFor(canon).catch(() => []),
-  ]);
+  const canon = withSlash(normalize(targetInput)); // cache key (with-slash)
+  const vars = variantsFor(targetInput);
+
+  const batches = await Promise.all(
+    vars.map(async (t) => {
+      const items = await fetchAllMentionsFor(t).catch(() => []);
+      console.log(`[wm fetch] target=${t} -> ${items.length} items`);
+      return items;
+    }),
+  );
+
   const map = new Map();
-  for (const m of [...A, ...B]) {
-    const key = m["wm-id"] ?? m.url ?? m["wm-source"];
+  for (const m of batches.flat()) {
+    const key =
+      (m["wm-id"] != null ? `id:${m["wm-id"]}` : null) ||
+      (m["wm-source"] && m["wm-target"]
+        ? `st:${m["wm-source"]}→${m["wm-target"]}`
+        : null) ||
+      (m.url ? `url:${m.url}` : null) ||
+      Math.random().toString(36);
     if (!map.has(key)) map.set(key, m);
   }
+
   return { canon, items: [...map.values()] };
 }
 
@@ -105,6 +117,37 @@ function summarize(children) {
   counts.total =
     counts.reply + counts.like + counts.repost + counts.mention + counts.rsvp;
   return counts;
+}
+
+function variantsFor(u) {
+  const base = new URL(normalize(u));
+  const hosts = new Set([base.host]);
+
+  // common host aliases
+  if (base.host.startsWith("www.")) hosts.add(base.host.slice(4));
+  else hosts.add("www." + base.host);
+
+  if (base.host.startsWith("blog.")) hosts.add(base.host.slice(5));
+  else hosts.add("blog." + base.host);
+
+  const p = base.pathname.replace(/\/+$/, ""); // drop trailing slash for building
+  const paths = [p, p + "/", p + "/index.html"];
+
+  const out = [];
+  for (const protocol of ["https:", "http:"]) {
+    for (const host of hosts) {
+      for (const path of paths) {
+        const v = new URL(base);
+        v.protocol = protocol;
+        v.host = host;
+        v.pathname = path;
+        v.hash = "";
+        out.push(v.toString());
+      }
+    }
+  }
+  // de-dupe
+  return [...new Set(out)];
 }
 
 async function main() {
