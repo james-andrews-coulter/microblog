@@ -10,6 +10,9 @@
     "luxon": "^3.7.1"
   },
   "scripts": {
-    "sync:webmentions": "node scripts/sync-webmentions.mjs"
+    "sync:webmentions": "node scripts/sync-webmentions.mjs",
+    "build": "npx @11ty/eleventy",
+    "dev": "npx @11ty/eleventy --serve",
+    "start": "npm run dev"
   }
 }
