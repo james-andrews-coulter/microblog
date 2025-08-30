@@ -93,6 +93,10 @@ module.exports = function (eleventyConfig) {
     }
   });
 
+  eleventyConfig.addFilter("rfc822", (dateObj) =>
+    DateTime.fromJSDate(dateObj, { zone: "utc" }).toRFC2822(),
+  );
+
   return {
     dir: {
       input: "src",
