@@ -1,0 +1,28 @@
+name: Send webmentions
+
+on:
+  push:
+    branches: [main] # run when you publish
+  schedule:
+    - cron: "*/15 * * * *" # also run every 15 minutes as a safety net
+  workflow_dispatch: # allow manual runs
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for production feed to be live
+        run: |
+          URL="https://blog.jamesandrewscoulter.com/feed.xml"
+          # Poll up to ~5 minutes for a 200 OK
+          for i in {1..20}; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 15
+          done
+          echo "Feed not reachable in time"; exit 1
+
+      - name: Trigger webmention.app
+        run: |
+          curl --fail --show-error -X POST \
+            "https://webmention.app/check?token=3896cae0-875f-4c3f-a4d5-92798db5caec&limit=1&url=https://blog.jamesandrewscoulter.com/feed.xml"
