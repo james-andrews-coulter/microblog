@@ -1,3 +1,4 @@
+{# src/feed.xml.njk #}
 ---
 permalink: /feed.xml
 eleventyExcludeFromCollections: true
@@ -9,14 +10,14 @@ eleventyExcludeFromCollections: true
     <link>{{ site.url }}</link>
     <description>{{ site.description | escape }}</description>
     <lastBuildDate>{{ (collections.posts[0] and collections.posts[0].date) | rfc822 }}</lastBuildDate>
-    {% for post in collections.posts | slice(0, 20) %}
-      <item>
-        <title>{{ (post.data.title or "Untitled") | escape }}</title>
-        <link>{{ site.url }}{{ post.url }}</link>
-        <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
-        <pubDate>{{ post.date | rfc822 }}</pubDate>
-        <description><![CDATA[{{ post.data.description or post.templateContent | safe }}]]></description>
-      </item>
+    {% for post in collections.posts | head(20) %}
+    <item>
+      <title>{{ (post.data.title or "Untitled") | escape }}</title>
+      <link>{{ site.url }}{{ post.url }}</link>
+      <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
+      <pubDate>{{ post.date | rfc822 }}</pubDate>
+      <description><![CDATA[{{ post.data.description or post.templateContent | safe }}]]></description>
+    </item>
     {% endfor %}
   </channel>
 </rss>

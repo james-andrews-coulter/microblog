@@ -5,6 +5,11 @@ module.exports = function (eleventyConfig) {
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
 
+  eleventyConfig.addFilter("head", (arr, n = 20) => (arr || []).slice(0, n));
+  eleventyConfig.addFilter("rfc822", (d) =>
+    DateTime.fromJSDate(d, { zone: "utc" }).toRFC2822(),
+  );
+
   // ---- Robust date helpers (parse strings or Dates consistently) ----
   const toMs = (d) => {
     if (d == null) return 0;
