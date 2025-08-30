@@ -13,6 +13,7 @@
     "sync:webmentions": "node scripts/sync-webmentions.mjs",
     "build": "npx @11ty/eleventy",
     "dev": "npx @11ty/eleventy --serve",
-    "start": "npm run dev"
+    "start": "npm run dev",
+    "postbuild": "curl -s -X POST \"https://webmention.app/check?token=$WEBMENTION_APP_TOKEN&limit=1&url=https://blog.jamesandrewscoulter.com/feed.xml\" || true"
   }
 }
