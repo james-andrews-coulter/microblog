@@ -18,7 +18,7 @@
         "url": ""
       },
       "url": "https://webmention.rocks/receive/1",
-      "published": "2025-08-26T09:53:39-07:00",
+      "published": "2025-08-30T09:57:50-07:00",
       "wm-received": "2025-08-26T16:53:42Z",
       "wm-id": 1933568,
       "wm-source": "https://webmention.rocks/receive/1/7d497aa3feccec73f530cad8f64f13ca",
@@ -34,5 +34,5 @@
       "wm-private": false
     }
   ],
-  "fetchedAt": "2025-08-29T17:51:45.718Z"
+  "fetchedAt": "2025-08-30T17:00:54.243Z"
 }
