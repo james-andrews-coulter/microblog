@@ -16,7 +16,9 @@ eleventyExcludeFromCollections: true
       <link>{{ site.url }}{{ post.url }}</link>
       <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
       <pubDate>{{ post.date | rfc822 }}</pubDate>
-      <description><![CDATA[{{ post.data.description or post.templateContent | safe }}]]></description>
+      <description><![CDATA[
+{{ (post.data.description or post.templateContent) | autolink | safe }}
+]]></description>
     </item>
     {% endfor %}
   </channel>

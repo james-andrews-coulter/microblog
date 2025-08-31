@@ -102,6 +102,16 @@ module.exports = function (eleventyConfig) {
     DateTime.fromJSDate(dateObj, { zone: "utc" }).toRFC2822(),
   );
 
+  // rss feed webmention auto-sending
+  eleventyConfig.addFilter("autolink", (html) => {
+    if (!html) return html;
+    // Linkify bare http(s) URLs that aren’t already inside an href
+    return String(html).replace(
+      /(^|[\s>])(https?:\/\/[^\s<>"']+[^\s<>"'.,!?)]?)(?=$|[\s<])/g,
+      (m, pre, url) => `${pre}<a href="${url}">${url}</a>`,
+    );
+  });
+
   return {
     dir: {
       input: "src",
