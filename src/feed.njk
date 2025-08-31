@@ -17,6 +17,10 @@ eleventyExcludeFromCollections: true
       <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
       <pubDate>{{ post.date | rfc822 }}</pubDate>
       <description><![CDATA[
+{% set target = post['in-reply-to'] or post['repost-of'] or post['bookmark-of'] or post['like-of'] %}
+{% if target -%}
+{{ post.type }}: {{ target }}
+{%- endif %}
 {{ (post.data.description or post.templateContent) | autolink | safe }}
 ]]></description>
     </item>
