@@ -369,12 +369,12 @@
       "total": 0
     },
     "https://blog.jamesandrewscoulter.com/posts/1756196344/": {
-      "reply": 1,
+      "reply": 2,
       "like": 0,
       "repost": 0,
       "mention": 0,
       "rsvp": 0,
-      "total": 1
+      "total": 2
     },
     "https://blog.jamesandrewscoulter.com/posts/testing-multiple-photos/": {
       "reply": 0,
@@ -384,13 +384,53 @@
       "rsvp": 0,
       "total": 0
     },
-    "https://blog.jamesandrewscoulter.com/": {
-      "reply": 1,
+    "https://blog.jamesandrewscoulter.com/posts/1756583062/": {
+      "reply": 0,
       "like": 0,
       "repost": 0,
-      "mention": 1,
+      "mention": 0,
       "rsvp": 0,
-      "total": 2
+      "total": 0
+    },
+    "https://blog.jamesandrewscoulter.com/posts/1756583486/": {
+      "reply": 0,
+      "like": 0,
+      "repost": 0,
+      "mention": 0,
+      "rsvp": 0,
+      "total": 0
+    },
+    "https://blog.jamesandrewscoulter.com/posts/1756589424/": {
+      "reply": 0,
+      "like": 0,
+      "repost": 0,
+      "mention": 0,
+      "rsvp": 0,
+      "total": 0
+    },
+    "https://blog.jamesandrewscoulter.com/posts/1756590297/": {
+      "reply": 0,
+      "like": 0,
+      "repost": 0,
+      "mention": 0,
+      "rsvp": 0,
+      "total": 0
+    },
+    "https://blog.jamesandrewscoulter.com/posts/1756649433/": {
+      "reply": 0,
+      "like": 0,
+      "repost": 0,
+      "mention": 0,
+      "rsvp": 0,
+      "total": 0
+    },
+    "https://blog.jamesandrewscoulter.com/": {
+      "reply": 0,
+      "like": 0,
+      "repost": 0,
+      "mention": 0,
+      "rsvp": 0,
+      "total": 0
     }
   }
 }

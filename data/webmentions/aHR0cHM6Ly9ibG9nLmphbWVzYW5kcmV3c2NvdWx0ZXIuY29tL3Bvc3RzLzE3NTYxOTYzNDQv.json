@@ -1,14 +1,37 @@
 {
   "target": "https://blog.jamesandrewscoulter.com/posts/1756196344/",
   "counts": {
-    "reply": 1,
+    "reply": 2,
     "like": 0,
     "repost": 0,
     "mention": 0,
     "rsvp": 0,
-    "total": 1
+    "total": 2
   },
   "items": [
+    {
+      "type": "entry",
+      "author": {
+        "type": "card",
+        "name": "James Coulter",
+        "photo": "https://avatars.webmention.io/blog.jamesandrewscoulter.com/2f97892308201fbbb2bfeb44905db788eaccdaad83b66f0afb83af7fe064ba1c.png",
+        "url": "https://blog.jamesandrewscoulter.com/"
+      },
+      "url": "https://blog.jamesandrewscoulter.com/posts/1756649433/",
+      "published": "2025-08-31T00:00:00",
+      "wm-received": "2025-08-31T14:18:48Z",
+      "wm-id": 1935381,
+      "wm-source": "https://blog.jamesandrewscoulter.com/posts/1756649433/",
+      "wm-target": "https://blog.jamesandrewscoulter.com/posts/1756196344/",
+      "wm-protocol": "webmention",
+      "content": {
+        "html": "<p>testing a second webmention from myself!</p>",
+        "text": "testing a second webmention from myself!"
+      },
+      "in-reply-to": "https://blog.jamesandrewscoulter.com/posts/1756196344/",
+      "wm-property": "in-reply-to",
+      "wm-private": false
+    },
     {
       "type": "entry",
       "author": {
@@ -18,7 +41,7 @@
         "url": ""
       },
       "url": "https://webmention.rocks/receive/1",
-      "published": "2025-08-30T09:57:50-07:00",
+      "published": "2025-08-30T10:03:21-07:00",
       "wm-received": "2025-08-26T16:53:42Z",
       "wm-id": 1933568,
       "wm-source": "https://webmention.rocks/receive/1/7d497aa3feccec73f530cad8f64f13ca",
@@ -34,5 +57,5 @@
       "wm-private": false
     }
   ],
-  "fetchedAt": "2025-08-30T17:00:54.243Z"
+  "fetchedAt": "2025-08-31T14:20:04.769Z"
 }
