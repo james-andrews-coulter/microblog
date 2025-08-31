@@ -16,13 +16,8 @@ eleventyExcludeFromCollections: true
       <link>{{ site.url }}{{ post.url }}</link>
       <guid isPermaLink="true">{{ site.url }}{{ post.url }}</guid>
       <pubDate>{{ post.date | rfc822 }}</pubDate>
-      <description><![CDATA[
-{% set target = post['in-reply-to'] or post['repost-of'] or post['bookmark-of'] or post['like-of'] %}
-{% if target -%}
-{{ post.type }}: {{ target }}
-{%- endif %}
-{{ (post.data.description or post.templateContent) | autolink | safe }}
-]]></description>
+      <description><![CDATA[{% set target = post.data['in-reply-to'] or post.data['repost-of'] or post.data['bookmark-of'] or post.data['like-of'] %}{% if target -%}{{ post.data.type }}: {{ target }}
+{%- endif %}{{ (post.data.description or post.templateContent) | autolink | safe }}]]></description>
     </item>
     {% endfor %}
   </channel>
