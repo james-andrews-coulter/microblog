@@ -9,13 +9,13 @@ jobs:
   ping-webmention:
     runs-on: ubuntu-latest
     steps:
-      - name: Call webmention.app
+      - name: Send webmentions
         env:
           TOKEN: ${{ secrets.WEBMENTION_TOKEN }}
           FEED_URL: https://blog.jamesandrewscoulter.com/feed.xml
         run: |
           set -euo pipefail
-          curl -fsS --retry 3 --get \
+          curl -fsS -X POST \
             --data-urlencode "token=${TOKEN}" \
             --data-urlencode "limit=1" \
             --data-urlencode "url=${FEED_URL}" \
