@@ -4,6 +4,7 @@ const path = require("path");
 module.exports = function (eleventyConfig) {
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
+  eleventyConfig.addPassthroughCopy({ "src/styles.css": "styles.css" });
 
   eleventyConfig.addFilter("head", (arr, n = 20) => (arr || []).slice(0, n));
   eleventyConfig.addFilter("rfc822", (d) =>
