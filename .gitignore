@@ -10,3 +10,6 @@ public/
 # env files (never commit)
 .env
 .env.*
+
+repomix*.*
+.repomixignore
