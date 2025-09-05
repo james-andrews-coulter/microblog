@@ -90,8 +90,8 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
 #### **Task 4: Create the Reusable Frontend Partial**
 -   [x] **4.1: File Creation:**
     -   [x] Create a new file at `src/_includes/components/context-cite.njk`.
--   [ ] **4.2: Implement HTML and Microformats Structure:**
-    -   [ ] Use the HTML structure specified in the PRD (`aside.h-cite`, `a.u-url`, `cite.p-name`, `blockquote.p-content`, `footer`, `p-author.h-card`, `time.dt-published`).
+-   [x] **4.2: Implement HTML and Microformats Structure:**
+    -   [x] Use the HTML structure specified in the PRD (`aside.h-cite`, `a.u-url`, `cite.p-name`, `blockquote.p-content`, `footer`, `p-author.h-card`, `time.dt-published`).
 -   [ ] **4.3: Implement Conditional Logic:**
     -   [ ] The entire partial should be wrapped in an `{% if ctx and ctx.url and not ctx.error %}` block.
     -   [ ] Use `{% if ctx.type == 'note' and ctx.content %}` to render the `<blockquote>` for notes.
