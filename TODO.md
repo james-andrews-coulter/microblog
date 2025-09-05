@@ -92,12 +92,12 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
     -   [x] Create a new file at `src/_includes/components/context-cite.njk`.
 -   [x] **4.2: Implement HTML and Microformats Structure:**
     -   [x] Use the HTML structure specified in the PRD (`aside.h-cite`, `a.u-url`, `cite.p-name`, `blockquote.p-content`, `footer`, `p-author.h-card`, `time.dt-published`).
--   [ ] **4.3: Implement Conditional Logic:**
-    -   [ ] The entire partial should be wrapped in an `{% if ctx and ctx.url and not ctx.error %}` block.
-    -   [ ] Use `{% if ctx.type == 'note' and ctx.content %}` to render the `<blockquote>` for notes.
-    -   [ ] Use `{% elif ctx.title %}` to render the `<cite>` for articles and other types.
-    -   [ ] Provide a final `{% else %}` to render just the URL as a fallback if no title or content exists.
-    -   [ ] Use `{% if ctx.author and ctx.author.name %}` and `{% if ctx.published %}` to conditionally render the author and date lines in the footer.
+-   [x] **4.3: Implement Conditional Logic:**
+    -   [x] The entire partial should be wrapped in an `{% if ctx and ctx.url and not ctx.error %}` block.
+    -   [x] Use `{% if ctx.type == 'note' and ctx.content %}` to render the `<blockquote>` for notes.
+    -   [x] Use `{% elif ctx.title %}` to render the `<cite>` for articles and other types.
+    -   [x] Provide a final `{% else %}` to render just the URL as a fallback if no title or content exists.
+    -   [x] Use `{% if ctx.author and ctx.author.name %}` and `{% if ctx.published %}` to conditionally render the author and date lines in the footer.
 
 #### **Task 5: Update Post Templates**
 -   [ ] **5.1: Identify Target Templates:** Locate the primary templates responsible for rendering single posts for replies, bookmarks, likes, and reposts (e.g., `src/_includes/layouts/reply.njk`, `src/_includes/layouts/bookmark.njk`, etc.).
