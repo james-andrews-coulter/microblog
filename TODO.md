@@ -22,22 +22,22 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
 -   [x] **2.1: File Creation:**
     -   [x] Create a new file at the path `lib/context-fetcher.mjs`.
 
--   [ ] **2.2: Implement the Raw Data Fetcher (`fetchRawMetadata`)**
-    -   [ ] Inside `lib/context-fetcher.mjs`, create an internal, un-exported `async function fetchRawMetadata(url, headers = {})`. This function will perform the actual network request and parsing.
-    -   [ ] **2.2.1: HTTP Request:** Use `undici` to perform a `GET` request to the given `url`. Pass the `headers` object (which will be used for caching later).
-    -   [ ] **2.2.2: Error Handling:** If the response status is not 200, throw an error.
-    -   [ ] **2.2.3: Data Extraction:** On a successful response, extract the HTML content, the `ETag` header, and the `Last-Modified` header.
-    -   [ ] **2.2.4: Microformats2 Parsing:** Use `microformats-parser` on the HTML to find `h-entry` and `h-card` items. Store the result.
-    -   [ ] **2.2.5: Metascraper Parsing:** Use `metascraper` on the HTML to get Open Graph, Twitter Card, and other metadata.
-    -   [ ] **2.2.6: Readability Fallback:** If the data from the previous steps lacks a `description` or `content` field, use `@mozilla/readability` and `jsdom` to parse the HTML and extract the `textContent` of the first paragraph of the main content.
-    -   [ ] **2.2.7: Data Normalization:** Create a new function `normalizeData(rawData)` that takes the outputs from the parsers and maps them to the required PRD JSON structure:
+-   [x] **2.2: Implement the Raw Data Fetcher (`fetchRawMetadata`)**
+    -   [x] Inside `lib/context-fetcher.mjs`, create an internal, un-exported `async function fetchRawMetadata(url, headers = {})`. This function will perform the actual network request and parsing.
+    -   [x] **2.2.1: HTTP Request:** Use `undici` to perform a `GET` request to the given `url`. Pass the `headers` object (which will be used for caching later).
+    -   [x] **2.2.2: Error Handling:** If the response status is not 200, throw an error.
+    -   [x] **2.2.3: Data Extraction:** On a successful response, extract the HTML content, the `ETag` header, and the `Last-Modified` header.
+    -   [x] **2.2.4: Microformats2 Parsing:** Use `microformats-parser` on the HTML to find `h-entry` and `h-card` items. Store the result.
+    -   [x] **2.2.5: Metascraper Parsing:** Use `metascraper` on the HTML to get Open Graph, Twitter Card, and other metadata.
+    -   [x] **2.2.6: Readability Fallback:** If the data from the previous steps lacks a `description` or `content` field, use `@mozilla/readability` and `jsdom` to parse the HTML and extract the `textContent` of the first paragraph of the main content.
+    -   [x] **2.2.7: Data Normalization:** Create a new function `normalizeData(rawData)` that takes the outputs from the parsers and maps them to the required PRD JSON structure:
         -   `url`
         -   `type` (Implement heuristics: if URL is YouTube/Vimeo, set to `video`; if `og:type` is `article`, set to `article`; if content is short, set to `note`; else `page`).
         -   `title`
         -   `content` (Ensure this is plain text and trimmed to ~300 characters with an ellipsis if longer).
         -   `author` (an object with `name` and `url`).
         -   `published` (in ISO 8601 format).
-    -   [ ] **2.2.8: Final Return:** The `fetchRawMetadata` function should return an object containing the normalized data, plus the fetched `etag` and `lastModified` headers for caching.
+    -   [x] **2.2.8: Final Return:** The `fetchRawMetadata` function should return an object containing the normalized data, plus the fetched `etag` and `lastModified` headers for caching.
 
 -   [ ] **2.3: Implement the Public Caching Layer (`getCachedMetadata`)**
     -   [ ] **2.3.1: Function Signature:** Export an `async function getCachedMetadata(url)`. This will be the main function used by Eleventy.
