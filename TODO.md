@@ -101,7 +101,7 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
 
 #### **Task 5: Update Post Templates**
 -   [x] **5.1: Identify Target Templates:** Locate the primary templates responsible for rendering single posts for replies, bookmarks, likes, and reposts (e.g., `src/_includes/layouts/reply.njk`, `src/_includes/layouts/bookmark.njk`, etc.).
--   [ ] **5.2: Add Data Fetching Logic:** In each relevant template, add the following Nunjucks logic near the top of the file.
+-   [x] **5.2: Add Data Fetching Logic:** In each relevant template, add the following Nunjucks logic near the top of the file.
     ```nunjucks
     {# Define the target URL based on frontmatter #}
     {% set targetUrl = data['in-reply-to'] or data['bookmark-of'] or data['like-of'] or data['repost-of'] %}
