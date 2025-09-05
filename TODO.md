@@ -100,7 +100,7 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
     -   [x] Use `{% if ctx.author and ctx.author.name %}` and `{% if ctx.published %}` to conditionally render the author and date lines in the footer.
 
 #### **Task 5: Update Post Templates**
--   [ ] **5.1: Identify Target Templates:** Locate the primary templates responsible for rendering single posts for replies, bookmarks, likes, and reposts (e.g., `src/_includes/layouts/reply.njk`, `src/_includes/layouts/bookmark.njk`, etc.).
+-   [x] **5.1: Identify Target Templates:** Locate the primary templates responsible for rendering single posts for replies, bookmarks, likes, and reposts (e.g., `src/_includes/layouts/reply.njk`, `src/_includes/layouts/bookmark.njk`, etc.).
 -   [ ] **5.2: Add Data Fetching Logic:** In each relevant template, add the following Nunjucks logic near the top of the file.
     ```nunjucks
     {# Define the target URL based on frontmatter #}
