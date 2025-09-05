@@ -39,24 +39,24 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
         -   `published` (in ISO 8601 format).
     -   [x] **2.2.8: Final Return:** The `fetchRawMetadata` function should return an object containing the normalized data, plus the fetched `etag` and `lastModified` headers for caching.
 
--   [ ] **2.3: Implement the Public Caching Layer (`getCachedMetadata`)**
-    -   [ ] **2.3.1: Function Signature:** Export an `async function getCachedMetadata(url)`. This will be the main function used by Eleventy.
-    -   [ ] **2.3.2: File Path Generation:**
+-   [x] **2.3: Implement the Public Caching Layer (`getCachedMetadata`)**
+    -   [x] **2.3.1: Function Signature:** Export an `async function getCachedMetadata(url)`. This will be the main function used by Eleventy.
+    -   [x] **2.3.2: File Path Generation:**
         -   Define the cache directory path: `data/reply-context/`.
         -   Create a helper function to convert the `url` into a filesystem-safe filename using Base64 URL encoding.
-    -   [ ] **2.3.3: Cache Check:** Check if a cache file for the generated filename exists.
-    -   [ ] **2.3.4: Revalidation Logic (If Cache Exists):**
+    -   [x] **2.3.3: Cache Check:** Check if a cache file for the generated filename exists.
+    -   [x] **2.3.4: Revalidation Logic (If Cache Exists):**
         -   Read the cached JSON file.
         -   Extract the stored `etag` and `lastModified` values.
         -   Construct a `headers` object for the request: `{'If-None-Match': etag, 'If-Modified-Since': lastModified}`.
         -   Make a `GET` request to the URL with these headers.
         -   **If the server responds with `304 Not Modified`**, return the data from the cached JSON file immediately.
         -   **If the server responds with `200 OK`**, proceed to call `fetchRawMetadata`, then overwrite the cache file with the new data, and return it.
-    -   [ ] **2.3.5: Cache Miss Logic (If No Cache Exists):**
+    -   [x] **2.3.5: Cache Miss Logic (If No Cache Exists):**
         -   Call `fetchRawMetadata(url)` with no headers.
         -   Save the complete returned object (normalized data + headers) as a new JSON file in the cache directory.
         -   Return the normalized data portion of the object.
-    -   [ ] **2.3.6: Top-Level Error Handling:** Wrap the function's logic in a `try/catch` block. If any step fails, log the error to the console and return a minimal object: `{ url: url, error: true }`.
+    -   [x] **2.3.6: Top-Level Error Handling:** Wrap the function's logic in a `try/catch` block. If any step fails, log the error to the console and return a minimal object: `{ url: url, error: true }`.
 
 ---
 
