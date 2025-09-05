@@ -64,7 +64,7 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
 
 #### **Task 3: Integrate Utility into Eleventy**
 -   [x] **3.1: Modify Config File:** Open `eleventy.config.cjs`.
--   [ ] **3.2: Import Utility:** At the top of the file, import the `getCachedMetadata` function:
+-   [x] **3.2: Import Utility:** At the top of the file, import the `getCachedMetadata` function:
     ```javascript
     const { getCachedMetadata } = require("./lib/context-fetcher.mjs");
     ```
