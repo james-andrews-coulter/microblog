@@ -109,7 +109,7 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
     {# Asynchronously fetch the context data #}
     {% set context = targetUrl | fetchContext %}
     ```
--   [ ] **5.3: Render the Partial:** In the desired location within the template's `<article>` tag, include the partial and the fallback.
+-   [x] **5.3: Render the Partial:** In the desired location within the template's `<article>` tag, include the partial and the fallback.
     ```nunjucks
     {# Render the context block if fetch was successful #}
     {% if context and not context.error %}
