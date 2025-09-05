@@ -68,7 +68,7 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
     ```javascript
     const { getCachedMetadata } = require("./lib/context-fetcher.mjs");
     ```
--   [ ] **3.3: Register Async Filter:** Inside the main `module.exports` function, add a Nunjucks async filter named `fetchContext`.
+-   [x] **3.3: Register Async Filter:** Inside the main `module.exports` function, add a Nunjucks async filter named `fetchContext`.
     ```javascript
     eleventyConfig.addNunjucksAsyncFilter(
       "fetchContext",
