@@ -19,8 +19,8 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
     *Note: `undici` is a built-in Node.js module in recent versions and may not require installation.*
 
 #### **Task 2: Create the Core Metadata Fetching & Caching Utility**
--   [ ] **2.1: File Creation:**
-    -   [ ] Create a new file at the path `lib/context-fetcher.mjs`.
+-   [x] **2.1: File Creation:**
+    -   [x] Create a new file at the path `lib/context-fetcher.mjs`.
 
 -   [ ] **2.2: Implement the Raw Data Fetcher (`fetchRawMetadata`)**
     -   [ ] Inside `lib/context-fetcher.mjs`, create an internal, un-exported `async function fetchRawMetadata(url, headers = {})`. This function will perform the actual network request and parsing.
