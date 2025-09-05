@@ -1,8 +1,12 @@
-{# _includes/postslist.njk #}
 <ul class="h-feed">
   {% for post in postslist %}
-    {% set t = post.data.type or "note" %}
     <li>
+    <a class="u-url" href="{{ post.url }}">
+      <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
+        {{ post.date | readableDate }}
+      </time>
+    </a>
+      {% set t = post.data.type or "note" %}
       {% if t == "article" %}
         {% include "components/card-article.njk" %}
       {% elif t == "photo" %}

@@ -1,14 +1,12 @@
 <article class="h-entry h-entry--reply">
   {% set target = post.data["in-reply-to"] | first %}
-  <p>↩️ In reply to <a class="u-in-reply-to" href="{{ target }}">{{ target }}</a></p>
+  <header>
+      <small>
+          <strong>↩ Replied to </strong><a class="u-in-reply-to" href="{{ target }}">{{ target }}</a>
+      </small>
+  </header>
 
-  <div class="e-content p-name">
+  <p class="e-content p-name">
     {{ post.templateContent | safe }}
-  </div>
-
-  <a class="u-url" href="{{ post.url }}" rel="bookmark">
-    <time class="dt-published" datetime="{{ post.date | htmlDateString }}">
-      {{ post.date | readableDate }}
-    </time>
-  </a>
+  </p>
 </article>
