@@ -1,0 +1,13 @@
+{% if post.data.tags | length %}
+  <footer>
+    <ul>
+      {% for tag in post.data.tags %}
+        <li class="p-category">
+            <small>
+                <em>{{ tag }}</em>
+            </small>
+</li>
+      {% endfor %}
+    </ul>
+  </footer>
+  {% endif %}

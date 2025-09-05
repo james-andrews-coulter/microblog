@@ -2,7 +2,7 @@
 :root {
     --dot-gap: 32px;
     --dot-size: 1.2px;
-    --dot-color-light: rgba(0, 0, 0, 0.2); /* lighter dots for light mode */
+    --dot-color-light: rgba(0, 0, 0, 0.2);
     --dot-color-dark: rgba(255, 255, 255, 0.08);
     --date-col: 12ch;
 }
@@ -28,7 +28,6 @@
     }
 }
 
-/* Keep content visible over the grid */
 body {
     background: transparent;
 }
@@ -41,7 +40,6 @@ main {
     margin-inline: auto;
 }
 
-/* Feed: no bullets, per-item left gutter for the date */
 ul.h-feed {
     list-style: none;
     padding: 0;
@@ -50,7 +48,7 @@ ul.h-feed {
 ul.h-feed > li {
     display: grid;
     grid-template-columns: var(--date-col) minmax(0, 1fr);
-    column-gap: 1rem; /* space between date and card */
+    column-gap: 1rem;
     align-items: start;
     margin: 1.5rem 0;
 }
@@ -76,6 +74,27 @@ ul.h-feed > li > a > time.dt-published,
 ul.h-feed > li > time.dt-published {
     line-height: 1.1;
     font-size: small;
+}
+
+article footer {
+    margin: 1.5rem 0 0.5rem 0;
+}
+
+article footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: right;
+}
+
+article footer ul li {
+    display: inline-block;
+    margin-right: 0.5em;
+}
+
+article footer ul li::before {
+    content: "#";
+    margin-right: -0.3ch;
 }
 
 @media (max-width: 640px) {

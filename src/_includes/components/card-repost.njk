@@ -8,4 +8,6 @@
   {% if post.templateContent %}
     <p class="e-content">{{ post.templateContent | safe }}</p>
   {% endif %}
+
+  {% include "components/card-footer-tags.njk" %}
 </article>

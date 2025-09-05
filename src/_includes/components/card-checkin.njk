@@ -20,9 +20,6 @@
     <div class="e-content">{{ post.templateContent | safe }}</div>
   {% endif %}
 
-  <a class="u-url" href="{{ post.url }}">
-    <!--<time class="dt-published" datetime="{{ post.date | htmlDateString }}">
-      {{ post.date | readableDate }}
-    </time>-->
-  </a>
+{% include "components/card-footer-tags.njk" %}
+
 </article>
