@@ -121,7 +121,7 @@ Of course. Here is a detailed, step-by-step task list based on the PRD, designed
       </p>
     {% endif %}
     ```
--   [ ] **5.4: Repeat for all Context Types:** Apply steps 5.2 and 5.3 to all relevant post type layouts.
+-   [x] **5.4: Repeat for all Context Types:** Apply steps 5.2 and 5.3 to all relevant post type layouts.
 
 ---
 
