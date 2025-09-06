@@ -1,6 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
+// Import getCachedMetadata from ESM module
+const getCachedMetadata = async (...args) => (await import("./lib/context-fetcher.mjs")).getCachedMetadata(...args);
+
 module.exports = function (eleventyConfig) {
   // Static assets
   eleventyConfig.addPassthroughCopy({ "src/images": "images" });
@@ -78,6 +81,24 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("first", (v) => (Array.isArray(v) ? v[0] : v));
   eleventyConfig.addFilter("asArray", (v) =>
     Array.isArray(v) ? v : v ? [v] : [],
+  );
+
+  // Nunjucks async filter for fetching context
+  eleventyConfig.addNunjucksAsyncFilter(
+    "fetchContext",
+    async function (url, callback) {
+      console.log("[fetchContext filter] Invoked for URL:", url);
+      if (!url) {
+        return callback(null, null);
+      }
+      try {
+        const context = await getCachedMetadata(url);
+        callback(null, context);
+      } catch (error) {
+        console.error(`[Context Fetcher] Error for ${url}:`, error);
+        callback(null, { url: url, error: true }); // Graceful fallback
+      }
+    }
   );
 
   eleventyConfig.addFilter("wmLoad", function (targetUrl) {

@@ -1,0 +1,29 @@
+{% if ctx and ctx.url and not ctx.error %}
+<aside>
+  <span class="h-cite">
+    <small>
+      <strong>↩ Replied to 
+        <a class="u-url" href="{{ ctx.url }}">
+          {% if ctx.type == 'note' and ctx.content %}
+            <blockquote class="p-content">{{ ctx.content }}</blockquote>
+          {% elif ctx.title %}
+            <cite class="p-name">{{ ctx.title }}</cite>
+          {% else %}
+          {{ ctx.url }}
+          {% endif %}
+        </a>
+        {% if ctx.author and ctx.author.name %} 
+          by <span class="p-author h-card">{{ ctx.author.name }}
+            {% if ctx.author.url %} (
+              <a href="{{ ctx.author.url }}">{{ ctx.author.url }}</a>
+              )
+            {% endif %}</span>
+        {% endif %}
+        {% if ctx.published %}
+          from <time class="dt-published" datetime="{{ ctx.published }}">{{ ctx.published }}</time>
+        {% endif %}
+      </strong>
+    </small>
+  </span>
+</aside>
+{% endif %}

@@ -6,6 +6,8 @@ public/
 
 # local/dev
 .vercel/
+/.zed/
+
 
 # env files (never commit)
 .env
@@ -13,3 +15,5 @@ public/
 
 repomix*.*
 .repomixignore
+
+TODO.md

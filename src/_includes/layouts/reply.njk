@@ -2,17 +2,23 @@
 layout: base.njk
 ---
 
-<article class="h-entry">
-  {% if tags %}
-  <ul>
-    {% for tag in tags %}
-      <li>{{ tag }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+{# Define the target URL based on frontmatter #}
+{% set targetUrl = inReplyTo or bookmarkOf or likeOf or repostOf %}
 
-  {% if inReplyTo %}
-    <p>↩️ In reply to <a class="u-in-reply-to" href="{{ inReplyTo }}">{{ inReplyTo }}</a></p>
+{# Asynchronously fetch the context data #}
+{% set context = targetUrl | fetchContext %}
+
+<article class="h-entry">
+
+  {# Render the context block if fetch was successful #}
+  {% if context and not context.error %}
+    {% set ctx = context %}
+    {% include "components/context-cite.njk" %}
+  {% elif targetUrl %}
+    {# Render a simple fallback link if fetch failed or was disabled #}
+    <p class="reply-context-fallback">
+      In reply to <a href="{{ targetUrl }}">{{ targetUrl }}</a>
+    </p>
   {% endif %}
 
   <div class="e-content p-name">
@@ -24,5 +30,12 @@ layout: base.njk
       {{ date | readableDate }}
     </time>
   </a>
+   {% if tags %}
+  <ul>
+    {% for tag in tags %}
+      <li>{{ tag }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 </article>
 {% include "components/webmentions.njk" %}

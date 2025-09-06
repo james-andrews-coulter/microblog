@@ -1,0 +1,31 @@
+/node_modules/
+
+/.zed/
+
+/public/
+
+/.env.local/
+
+/.gitignore
+/.clineignore
+
+/.repomixignore
+/repomix*
+
+/data/webmentions/
+/src/images/
+/src/posts/**
+
+#sample repost of my note
+!src/posts/src/1757149077.md
+#sample like of my photo
+!src/posts/1757148881-.md
+#sample bookmark of external article
+!src/posts/1757148122-mobile-opsec.md
+#sample reply of my note
+!src/posts/1757147058.md
+#sample reply of indieweb article
+!src/posts/1757144685.md
+
+
+

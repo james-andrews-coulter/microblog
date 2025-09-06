@@ -70,6 +70,10 @@ ul.h-feed > li > article {
     grid-column: 2;
 }
 
+article aside {
+    background: var(--background);
+}
+
 ul.h-feed > li > a > time.dt-published,
 ul.h-feed > li > time.dt-published {
     line-height: 1.1;

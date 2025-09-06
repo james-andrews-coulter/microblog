@@ -2,6 +2,12 @@
 layout: base.njk
 ---
 
+{# Define the target URL based on frontmatter #}
+{% set targetUrl = data['in-reply-to'] or data['bookmark-of'] or data['like-of'] or data['repost-of'] %}
+
+{# Asynchronously fetch the context data #}
+{% set context = targetUrl | fetchContext %}
+
 <article class="h-entry">
   {% if tags %}
   <ul>
@@ -11,8 +17,15 @@ layout: base.njk
   </ul>
   {% endif %}
 
-  {% if bookmarkOf %}
-    <p>🔖 Bookmarked <a class="u-bookmark-of" href="{{ bookmarkOf }}">{{ bookmarkOf }}</a></p>
+  {# Render the context block if fetch was successful #}
+  {% if context and not context.error %}
+    {% set ctx = context %}
+    {% include "components/context-cite.njk" %}
+  {% elif targetUrl %}
+    {# Render a simple fallback link if fetch failed or was disabled #}
+    <p class="reply-context-fallback">
+      Bookmarked <a href="{{ targetUrl }}">{{ targetUrl }}</a>
+    </p>
   {% endif %}
 
   {% if title or name %}

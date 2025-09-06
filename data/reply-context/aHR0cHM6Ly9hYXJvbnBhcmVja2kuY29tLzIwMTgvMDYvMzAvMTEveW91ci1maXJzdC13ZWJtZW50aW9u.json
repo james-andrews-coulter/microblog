@@ -1,0 +1,13 @@
+{
+  "url": "https://aaronparecki.com/2018/06/30/11/your-first-webmention",
+  "title": "Sending your First Webmention from Scratch",
+  "content": "Webmention is one of the fundamental indieweb building blocks. It enables rich interactions between websites, like posting a comment or favorite on one site from another site. This post will walk you through the simplest way to get started sending webmentions to other sites so that you can use your own site to join the conversations happening on the Indie Web.",
+  "author": {
+    "name": "Chris Aldrich",
+    "url": ""
+  },
+  "published": "2018-06-30T17:35:00.000Z",
+  "type": "page",
+  "etag": null,
+  "lastModified": null
+}
