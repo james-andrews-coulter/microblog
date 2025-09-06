@@ -92,7 +92,7 @@ This task fixes the incorrect data (`type: 'page'`, wrong author) in the cached 
 
 This task ensures that the fetched context is displayed on index/list pages, not just on the individual post pages.
 
-- [ ] **Add context rendering to card components**
+- [x] **Add context rendering to card components**
   - **Action:** For each relevant card component in `src/_includes/components/` (e.g., `card-reply.njk`, `card-bookmark.njk`, etc.), you need to fetch the context and include the citation partial.
   - **Example Instruction for a generic card:**
     1.  At the top of the card file, add a variable to hold the target URL.

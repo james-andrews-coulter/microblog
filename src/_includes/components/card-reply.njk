@@ -1,10 +1,20 @@
 <article class="h-entry h-entry--reply">
-  {% set target = post.data["in-reply-to"] | first %}
+  {% set targetUrl = post.data['in-reply-to'] or post.data['bookmark-of'] or post.data['like-of'] or post.data['repost-of'] %}
   <header>
       <small>
-          <strong>↩ Replied to </strong><a class="u-in-reply-to" href="{{ target }}">{{ target }}</a>
+          <strong>↩ Replied to </strong>
+          {% if targetUrl %}
+            <a class="u-in-reply-to" href="{{ targetUrl }}">{{ targetUrl }}</a>
+          {% else %}
+            <span>No target</span>
+          {% endif %}
       </small>
   </header>
+
+  {% if targetUrl %}
+    {% set context = targetUrl | fetchContext %}
+    {% include "components/context-cite.njk", ctx: context %}
+  {% endif %}
 
   <p class="e-content p-name">
     {{ post.templateContent | safe }}

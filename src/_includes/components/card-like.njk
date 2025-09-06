@@ -1,10 +1,20 @@
 <article class="h-entry h-entry--like">
-  {% set target = post.data["like-of"] | first %}
+  {% set targetUrl = post.data['in-reply-to'] or post.data['bookmark-of'] or post.data['like-of'] or post.data['repost-of'] %}
   <header>
       <small>
-          <strong>☆Liked </strong><a class="u-like-of" href="{{ target }}">{{ target }}</a>
+          <strong>☆Liked </strong>
+          {% if targetUrl %}
+            <a class="u-like-of" href="{{ targetUrl }}">{{ targetUrl }}</a>
+          {% else %}
+            <span>No target</span>
+          {% endif %}
       </small>
   </header>
+
+  {% if targetUrl %}
+    {% set context = targetUrl | fetchContext %}
+    {% include "components/context-cite.njk", ctx: context %}
+  {% endif %}
 
   {% if post.templateContent %}
     <p class="e-content">{{ post.templateContent | safe }}</p>
