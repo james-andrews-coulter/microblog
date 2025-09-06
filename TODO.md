@@ -107,7 +107,7 @@ This task ensures that the fetched context is displayed on index/list pages, not
         {% endif %}
         ```
 
-- [ ] **Clear the existing cache**
+- [x] **Clear the existing cache**
   - **Action:** To ensure all new changes take effect and old, incorrect data is purged, delete all JSON files inside the `data/reply-context/` directory.
   - **Command:**
     ```bash
