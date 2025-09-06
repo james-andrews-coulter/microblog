@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { DateTime } = require("luxon");
 
 // Import getCachedMetadata from ESM module
 const getCachedMetadata = async (...args) => (await import("./lib/context-fetcher.mjs")).getCachedMetadata(...args);
@@ -58,7 +59,6 @@ module.exports = function (eleventyConfig) {
   });
 
   // ---- Filters ----
-  const { DateTime } = require("luxon");
   const normalizeDate = (d) => {
     const ms = toMs(d);
     return ms ? new Date(ms) : null;

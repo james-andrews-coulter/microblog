@@ -25,7 +25,7 @@ These tasks fix the difference in behavior between the local development server 
     ```
   - **Note:** Apply the same fix to `bookmark.njk`, `like.njk`, and `repost.njk` layouts if they use the same camelCase variable pattern.
 
-- [ ] **Fix Luxon import order in Eleventy config**
+- [x] **Fix Luxon import order in Eleventy config**
   - **File:** `eleventy.config.cjs`
   - **Action:** Locate the line `const { DateTime } = require("luxon");`.
   - **Instruction:** Move this line to the top of the file, immediately after the other `require` statements, to ensure it is available for all filters that depend on it.
