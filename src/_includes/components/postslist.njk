@@ -8,21 +8,21 @@
     </a>
       {% set t = post.data.type or "note" %}
       {% if t == "article" %}
-        {% include "components/card-article.njk" %}
+        {% include "components/card-article.njk", post: post %}
       {% elif t == "photo" %}
-        {% include "components/card-photo.njk" %}
+        {% include "components/card-photo.njk", post: post %}
       {% elif t == "bookmark" %}
-        {% include "components/card-bookmark.njk" %}
+        {% include "components/card-bookmark.njk", post: post %}
       {% elif t == "reply" %}
-        {% include "components/card-reply.njk" %}
+        {% include "components/card-reply.njk", post: post %}
       {% elif t == "like" %}
-        {% include "components/card-like.njk" %}
+        {% include "components/card-like.njk", post: post %}
       {% elif t == "repost" %}
-        {% include "components/card-repost.njk" %}
+        {% include "components/card-repost.njk", post: post %}
       {% elif t == "checkin" %}
-        {% include "components/card-checkin.njk" %}
+        {% include "components/card-checkin.njk", post: post %}
       {% else %}
-        {% include "components/card-note.njk" %}
+        {% include "components/card-note.njk", post: post %}
       {% endif %}
     </li>
   {% endfor %}
