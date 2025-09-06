@@ -3,7 +3,7 @@ layout: base.njk
 ---
 
 {# Define the target URL based on frontmatter #}
-{% set targetUrl = inReplyTo or bookmarkOf or likeOf or repostOf %}
+{% set targetUrl = data['in-reply-to'] or data['bookmark-of'] or data['like-of'] or data['repost-of'] %}
 
 {# Asynchronously fetch the context data #}
 {% set context = targetUrl | fetchContext %}

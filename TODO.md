@@ -12,7 +12,7 @@ These tasks fix the difference in behavior between the local development server 
     npm install undici
     ```
 
-- [ ] **Correct frontmatter variable access in layout templates**
+- [x] **Correct frontmatter variable access in layout templates**
   - **File:** `src/_includes/layouts/reply.njk`
   - **Action:** Find the line that sets the `targetUrl` variable.
   - **Replace this:**
