@@ -34,7 +34,7 @@ These tasks fix the difference in behavior between the local development server 
 
 This task fixes the incorrect data (`type: 'page'`, wrong author) in the cached JSON files.
 
-- [ ] **Replace the `normalizeData` function**
+- [x] **Replace the `normalizeData` function**
   - **File:** `lib/context-fetcher.mjs`
   - **Action:** Locate the existing `normalizeData` function and replace it entirely with the following implementation.
   - **New Code:**
