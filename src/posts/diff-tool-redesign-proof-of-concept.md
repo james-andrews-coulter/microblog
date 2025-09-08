@@ -1,10 +1,11 @@
 ---
-type: entry
+type: article
 title: diff tool redesign proof of concept
 tags:
-  - product design
+  - - product design
   - ai-coding
 date: '2025-09-08T06:58:47.902Z'
 client_id: 'https://micropublish.net/'
+layout: article.njk
 ---
 <div>spent 6h yesterday researching, redesigning and then prototyping in code a way for builders to view changes in their datasets between snapshots. <br><br>the scenario is: builders create workflows that periodically scrape a website's data into a table (as frequently as every 10 minutes), and then set up alerts to notify them when their table's dataset changes from the last scrape. When the data changes, builders will review what data was added/removed e.g. news headlines, and make important, time-sensitive decisions e.g. trades from their analysis.<br><br><strong>the problem with current design:<br></strong><img src="https://blog.jamesandrewscoulter.com/images/1757314127_RackMultipart20250908-116-4ra1ef.png" alt="image.png 745.78 KB"><br>- the layout breaks when lots of data changes happen - a real possibility if you consider how quickly news headlines move<br>- changes made lack location context useful for analysis i.e where were records added/removed from the dataset<br><img src="https://blog.jamesandrewscoulter.com/images/1757314162_RackMultipart20250908-116-ocp2x2.png" alt="image.png 1.74 MB"><br>- it relies to heavily on noisy and&nbsp; cumbersome before/after screenshots for analysis<br><br><strong>new design improvements:<br></strong><br>organize the changes in a table structure that <br>- supports the display of lots of data changes, <br>- makes it quick and easy to analyse<br>- adds new context for useful analysis e.g. where did the changes happen<br><br><strong>proof of concept<br></strong><img src="https://blog.jamesandrewscoulter.com/images/1757314515_RackMultipart20250908-116-qs9165.png" alt="image.png 428.56 KB"><strong><br></strong>i used radix ui kit in figma, and existing ui elements to rapidly realise a table-first design for the page. Then, to prove the JSON file could easily translate to a table with diff highlights, i built a simple react/vite web app that uses a script to parse the file, render a table with its contents, and highlight the changes.&nbsp;<br><br>the beauty of this solution is how it uses no new design patterns, or complex technology, but adds scalability and clarity for decision making.</div>
